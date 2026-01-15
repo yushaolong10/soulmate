@@ -1,0 +1,9 @@
+fastapi==0.128.0
+modelscope==1.33.0
+openai==2.15.0
+peft==0.18.1
+pydantic==2.12.5
+torch==2.9.1
+transformers==4.57.5
+trl==0.26.2
+uvicorn==0.40.0
