@@ -25,9 +25,18 @@ pip install -r requirements.txt
 
 
 
-BASE_MODEL=Qwen/Qwen3-1.7B \
-LORA_DIR=./qwen_lora_adapter_0115_x \
-DEVICE=cpu \
+# BASE_MODEL=Qwen/Qwen3-1.7B \
+# LORA_DIR=./qwen_lora_adapter_0115_x \
+# DEVICE=cpu \
+# DTYPE=float16 \
+# SERVED_MODEL_NAME=soulmate \
+# uvicorn server:app --host 0.0.0.0 --port 8026
+
+
+BASE_MODEL=Qwen/Qwen3-14B \
+LORA_DIR=./qwen_lora_adapter_0116_l \
+DEVICE=cuda \
+CUDA_VISIBLE_DEVICES=1 \
 DTYPE=float16 \
 SERVED_MODEL_NAME=soulmate \
-uvicorn server:app --host 0.0.0.0 --port 8026
+uvicorn server_gpu:app --host 0.0.0.0 --port 8026
