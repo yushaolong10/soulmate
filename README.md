@@ -1,6 +1,6 @@
-# 🤖 Soulmate - 灵魂伴侣聊天助手
+# 🤖 Soulmate - 情感聊天助手
 
-基于 **Qwen3-1.7B** 模型，使用 **LoRA (Low-Rank Adaptation)** 技术微调的中文聊天助手。该模型专门针对情感陪伴场景进行训练，能够以自然、口语化的方式进行对话交流。
+基于 **Qwen3-1.7B/14B** 模型，使用 **LoRA (Low-Rank Adaptation)** 技术微调的中文聊天助手。该模型专门针对情感陪伴场景进行训练，能够以自然、口语化的方式进行对话交流。
 
 ---
 
@@ -26,9 +26,11 @@ soulmate/
 ├── requirements.txt     # Python 依赖
 ├── datasets/            # 训练数据目录
 │   ├── train_0115_s.jsonl   # 小数据集 (1490 样本)
-│   └── train_0115_x.jsonl   # 中等数据集 (4598 样本)
+│   ├── train_0115_x.jsonl   # 中数据集 (4598 样本)
+│   └── train_0116_l.jsonl   # 大数据集 (7141 样本)
 ├── qwen_lora_adapter_0115_s/  # 小数据集训练的 LoRA 适配器
 └── qwen_lora_adapter_0115_x/  # 中等数据集训练的 LoRA 适配器
+└── qwen_lora_adapter_0116_l/  # 大数据集训练的 LoRA 适配器
 ```
 
 ---

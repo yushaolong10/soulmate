@@ -31,18 +31,18 @@ from trl import SFTTrainer
 # User config
 # -----------------------------
 MODEL_NAME = os.environ.get("MODEL_NAME", "Qwen/Qwen3-1.7B")
-TRAIN_FILE = os.environ.get("TRAIN_FILE", "datasets/train_0115_x.jsonl")
-OUTPUT_DIR = os.environ.get("OUTPUT_DIR", "qwen_lora_adapter_0115_x")
+TRAIN_FILE = os.environ.get("TRAIN_FILE", "datasets/train_0119_s.jsonl")
+OUTPUT_DIR = os.environ.get("OUTPUT_DIR", "qwen_lora_adapter_0119_s")
 
-MAX_SEQ_LEN = int(os.environ.get("MAX_SEQ_LEN", "2048"))
-EPOCHS = float(os.environ.get("EPOCHS", "2"))
+MAX_SEQ_LEN = int(os.environ.get("MAX_SEQ_LEN", "4096"))
+EPOCHS = float(os.environ.get("EPOCHS", "3"))
 LR = float(os.environ.get("LR", "1e-4"))
 
 PER_DEVICE_BS = int(os.environ.get("PER_DEVICE_BS", "1"))
 GRAD_ACCUM = int(os.environ.get("GRAD_ACCUM", "16"))
 
-SAVE_STEPS = int(os.environ.get("SAVE_STEPS", "200"))
-LOG_STEPS = int(os.environ.get("LOG_STEPS", "10"))
+SAVE_STEPS = int(os.environ.get("SAVE_STEPS", "5"))
+LOG_STEPS = int(os.environ.get("LOG_STEPS", "1"))
 
 # If you have limited VRAM, keep these as-is.
 LORA_R = int(os.environ.get("LORA_R", "16"))
@@ -254,7 +254,7 @@ def main():
         data_collator=data_collator,
     )
 
-    trainer.train(resume_from_checkpoint=True)
+    trainer.train()
 
     # Save adapter + tokenizer
     trainer.save_model(OUTPUT_DIR)

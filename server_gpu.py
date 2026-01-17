@@ -31,6 +31,7 @@ from queue import Queue
 
 import torch
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 from modelscope import AutoTokenizer, AutoModelForCausalLM
@@ -283,6 +284,15 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# 添加 CORS 中间件，支持跨域请求（允许前端页面调用）
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # 允许所有来源，生产环境建议限制具体域名
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 @app.get("/v1/models")
 def list_models():
@@ -340,6 +350,7 @@ def _create_stream_chunk(
         ],
     }
     return f"data: {json.dumps(chunk, ensure_ascii=False)}\n\n"
+
 
 def _filter_think_tags(text: str) -> str:
     """
