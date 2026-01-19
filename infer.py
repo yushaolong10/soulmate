@@ -3,7 +3,7 @@ from modelscope import AutoTokenizer, AutoModelForCausalLM
 from peft import PeftModel
 
 base = "Qwen/Qwen3-1.7B"
-adapter = "qwen_lora_adapter_0115_x"
+adapter = "qwen_lora_adapter_0119_s"
 
 tok = AutoTokenizer.from_pretrained(base, trust_remote_code=True)
 model = AutoModelForCausalLM.from_pretrained(

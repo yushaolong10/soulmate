@@ -6,6 +6,7 @@ from typing import Any, Dict, List, Optional
 
 import torch
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 from modelscope import AutoTokenizer, AutoModelForCausalLM
@@ -44,6 +45,7 @@ class ChatCompletionRequest(BaseModel):
     top_p: Optional[float] = 0.7
     max_tokens: Optional[int] = 1024
     stream: Optional[bool] = False
+    repetition_penalty: Optional[float] = 1.1  # 重复惩罚，>1 减少重复，1.0 无惩罚
 
     # 允许额外字段，兼容更多客户端
     class Config:
@@ -104,7 +106,11 @@ def _ensure_system(messages: List[Dict[str, str]]) -> List[Dict[str, str]]:
 
 @torch.inference_mode()
 def _generate_chat(
-    messages: List[Dict[str, str]], temperature: float, top_p: float, max_tokens: int
+    messages: List[Dict[str, str]],
+    temperature: float,
+    top_p: float,
+    max_tokens: int,
+    repetition_penalty: float = 1.1,
 ) -> str:
     assert tokenizer is not None and model is not None
 
@@ -130,6 +136,7 @@ def _generate_chat(
         do_sample=do_sample,
         temperature=temperature if do_sample else None,
         top_p=top_p if do_sample else None,
+        repetition_penalty=repetition_penalty,
         pad_token_id=tokenizer.pad_token_id,
         eos_token_id=tokenizer.eos_token_id,
     )
@@ -142,6 +149,15 @@ def _generate_chat(
 
 
 app = FastAPI(lifespan=lifespan)
+
+# 添加 CORS 中间件，支持跨域请求（允许前端页面调用）
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # 允许所有来源，生产环境建议限制具体域名
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/v1/models")
@@ -224,6 +240,7 @@ async def chat_completions(req: ChatCompletionRequest):
         temperature=req.temperature or 0.7,
         top_p=req.top_p or 0.7,
         max_tokens=req.max_tokens or 1024,
+        repetition_penalty=req.repetition_penalty or 1.1,
     )
 
     # 流式响应

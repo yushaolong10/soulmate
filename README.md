@@ -25,12 +25,12 @@ soulmate/
 ├── run.sh               # 快速启动服务脚本
 ├── requirements.txt     # Python 依赖
 ├── datasets/            # 训练数据目录
-│   ├── train_0115_s.jsonl   # 小数据集 (1490 样本)
-│   ├── train_0115_x.jsonl   # 中数据集 (4598 样本)
-│   └── train_0116_l.jsonl   # 大数据集 (7141 样本)
-├── qwen_lora_adapter_0115_s/  # 小数据集训练的 LoRA 适配器
-└── qwen_lora_adapter_0115_x/  # 中等数据集训练的 LoRA 适配器
-└── qwen_lora_adapter_0116_l/  # 大数据集训练的 LoRA 适配器
+│   ├── train_0119_s.jsonl   # 小数据集 (1400 样本)
+│   ├── train_0119_m.jsonl   # 中数据集 (4000 样本)
+│   └── train_0119_l.jsonl   # 大数据集 (8000 样本)
+├── qwen_lora_adapter_0119_sw/  # 小数据集训练的 LoRA 适配器
+└── qwen_lora_adapter_0119_mw/  # 中等数据集训练的 LoRA 适配器
+└── qwen_lora_adapter_0119_lw/  # 大数据集训练的 LoRA 适配器
 ```
 
 ---

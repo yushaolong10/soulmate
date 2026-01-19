@@ -77,6 +77,7 @@ class ChatCompletionRequest(BaseModel):
     top_p: Optional[float] = 0.7
     max_tokens: Optional[int] = 4096
     stream: Optional[bool] = False
+    repetition_penalty: Optional[float] = 1.1  # 重复惩罚，>1 减少重复，1.0 无惩罚
 
     class Config:
         extra = "ignore"
@@ -180,6 +181,7 @@ def _generate_chat(
     temperature: float,
     top_p: float,
     max_tokens: int,
+    repetition_penalty: float = 1.1,
 ) -> str:
     """非流式生成"""
     assert tokenizer is not None and model is not None
@@ -187,7 +189,7 @@ def _generate_chat(
     messages = _ensure_system(messages)
 
     prompt = tokenizer.apply_chat_template(
-        messages, tokenize=False, add_generation_prompt=True
+        messages, tokenize=False, add_generation_prompt=True, enable_thinking=False
     )
 
     inputs = tokenizer(prompt, return_tensors="pt")
@@ -205,6 +207,7 @@ def _generate_chat(
         do_sample=do_sample,
         temperature=temperature if do_sample else None,
         top_p=top_p if do_sample else None,
+        repetition_penalty=repetition_penalty,
         pad_token_id=tokenizer.pad_token_id,
         eos_token_id=tokenizer.eos_token_id,
         use_cache=True,  # 启用 KV Cache
@@ -224,6 +227,7 @@ def _generate_chat_stream(
     temperature: float,
     top_p: float,
     max_tokens: int,
+    repetition_penalty: float = 1.1,
 ) -> Iterator[str]:
     """
     真正的流式生成 - 逐 token 输出
@@ -234,7 +238,7 @@ def _generate_chat_stream(
     messages = _ensure_system(messages)
 
     prompt = tokenizer.apply_chat_template(
-        messages, tokenize=False, add_generation_prompt=True
+        messages, tokenize=False, add_generation_prompt=True, enable_thinking=False
     )
 
     inputs = tokenizer(prompt, return_tensors="pt")
@@ -257,6 +261,7 @@ def _generate_chat_stream(
         "do_sample": do_sample,
         "temperature": temperature if do_sample else None,
         "top_p": top_p if do_sample else None,
+        "repetition_penalty": repetition_penalty,
         "pad_token_id": tokenizer.pad_token_id,
         "eos_token_id": tokenizer.eos_token_id,
         "use_cache": True,
@@ -371,6 +376,7 @@ async def _stream_response_real(
     temperature: float,
     top_p: float,
     max_tokens: int,
+    repetition_penalty: float = 1.1,
 ):
     """
     真正的流式响应 - 逐 token 发送
@@ -383,6 +389,7 @@ async def _stream_response_real(
         temperature=temperature,
         top_p=top_p,
         max_tokens=max_tokens,
+        repetition_penalty=repetition_penalty,
     ):
         yield _create_stream_chunk(token_text, model_name, chunk_id)
         # 短暂让出控制权，确保响应能及时发送
@@ -407,6 +414,7 @@ async def chat_completions(req: ChatCompletionRequest):
                 temperature=req.temperature or 0.7,
                 top_p=req.top_p or 0.7,
                 max_tokens=req.max_tokens or 1024,
+                repetition_penalty=req.repetition_penalty or 1.1,
             ),
             media_type="text/event-stream",
             headers={
@@ -422,6 +430,7 @@ async def chat_completions(req: ChatCompletionRequest):
         temperature=req.temperature or 0.7,
         top_p=req.top_p or 0.7,
         max_tokens=req.max_tokens or 1024,
+        repetition_penalty=req.repetition_penalty or 1.1,
     )
 
     return _create_chat_completion_response(content, req.model)

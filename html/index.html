@@ -594,6 +594,10 @@
                     <label>API 地址</label>
                     <input type="text" id="apiUrl" value="http://127.0.0.1:8000/v1" placeholder="http://127.0.0.1:8000/v1">
                 </div>
+                <div class="setting-group">
+                    <label>模型名称</label>
+                    <input type="text" id="modelName" value="soulmate" placeholder="soulmate">
+                </div>
             </div>
 
             <!-- 生成参数 -->
@@ -652,6 +656,7 @@
         // 默认设置
         const DEFAULT_SETTINGS = {
             apiUrl: 'http://127.0.0.1:8000/v1',
+            modelName: 'soulmate',
             temperature: 0.7,
             topP: 0.7,
             streamMode: true,
@@ -673,6 +678,7 @@
         function saveSettings() {
             const settings = {
                 apiUrl: document.getElementById('apiUrl').value,
+                modelName: document.getElementById('modelName').value,
                 temperature: parseFloat(document.getElementById('temperature').value),
                 topP: parseFloat(document.getElementById('topP').value),
                 streamMode: document.getElementById('streamMode').checked,
@@ -692,6 +698,7 @@
                     const settings = JSON.parse(saved);
                     
                     document.getElementById('apiUrl').value = settings.apiUrl || DEFAULT_SETTINGS.apiUrl;
+                    document.getElementById('modelName').value = settings.modelName || DEFAULT_SETTINGS.modelName;
                     document.getElementById('temperature').value = settings.temperature ?? DEFAULT_SETTINGS.temperature;
                     document.getElementById('topP').value = settings.topP ?? DEFAULT_SETTINGS.topP;
                     document.getElementById('streamMode').checked = settings.streamMode ?? DEFAULT_SETTINGS.streamMode;
@@ -728,6 +735,7 @@
             localStorage.removeItem(STORAGE_KEY);
             
             document.getElementById('apiUrl').value = DEFAULT_SETTINGS.apiUrl;
+            document.getElementById('modelName').value = DEFAULT_SETTINGS.modelName;
             document.getElementById('temperature').value = DEFAULT_SETTINGS.temperature;
             document.getElementById('topP').value = DEFAULT_SETTINGS.topP;
             document.getElementById('streamMode').checked = DEFAULT_SETTINGS.streamMode;
@@ -761,7 +769,7 @@
 
         // 监听设置变化，自动保存
         function setupAutoSave() {
-            const inputs = ['apiUrl', 'temperature', 'topP', 'historyLength', 'maxTokens', 'systemPrompt'];
+            const inputs = ['apiUrl', 'modelName', 'temperature', 'topP', 'historyLength', 'maxTokens', 'systemPrompt'];
             inputs.forEach(id => {
                 document.getElementById(id).addEventListener('change', saveSettings);
             });
@@ -856,7 +864,7 @@
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        model: 'soulmate',
+                        model: document.getElementById('modelName').value || 'soulmate',
                         messages: messagesToSend,
                         temperature: temperature,
                         top_p: topP,

@@ -115,6 +115,9 @@ def build_text_and_labels(
         # - Else: labels for NEW tokens are -100
         if msg["role"] == "assistant":
             labels.extend(new_ids)
+        elif msg["role"] == "user":
+            # 给 user 一点点 loss
+            labels.extend(new_ids)  # 或部分
         else:
             labels.extend([-100] * len(new_ids))
 
