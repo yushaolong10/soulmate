@@ -123,6 +123,49 @@
             min-height: 0; /* 关键：允许 flex 子元素收缩 */
         }
 
+        .chat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1.25rem;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-light);
+            flex-shrink: 0;
+        }
+
+        .chat-header span {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .copy-chat-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.375rem 0.75rem;
+            background: var(--bg-chat);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .copy-chat-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: #fff5f8;
+        }
+
+        .copy-chat-btn.copied {
+            border-color: #68d391;
+            color: #68d391;
+            background: #f0fff4;
+        }
+
         .messages {
             flex: 1;
             overflow-y: auto;
@@ -566,6 +609,15 @@
     <div class="main-container">
         <!-- Left: Chat Area -->
         <div class="chat-area">
+            <div class="chat-header">
+                <span>💬 对话</span>
+                <button class="copy-chat-btn" id="copyChatBtn" onclick="copyChatHistory()" title="复制对话内容">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                        <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                    </svg>
+                    <span>复制</span>
+                </button>
+            </div>
             <div class="messages" id="messages">
                 <!-- 消息将在 JavaScript 中动态添加 -->
             </div>
@@ -934,6 +986,44 @@
             
             updateHistoryBadge();
             saveSettings();
+        }
+
+        // 复制聊天历史
+        function copyChatHistory() {
+            const copyBtn = document.getElementById('copyChatBtn');
+            
+            // 过滤掉 system 消息，生成复制格式
+            const chatText = chatHistory
+                .filter(msg => msg.role !== 'system')
+                .map(msg => `${msg.role}: ${msg.content}`)
+                .join('\n');
+            
+            if (!chatText) {
+                alert('暂无对话内容可复制');
+                return;
+            }
+            
+            // 复制到剪贴板
+            navigator.clipboard.writeText(chatText).then(() => {
+                // 显示复制成功状态
+                const originalHTML = copyBtn.innerHTML;
+                copyBtn.classList.add('copied');
+                copyBtn.innerHTML = `
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                    </svg>
+                    <span>已复制</span>
+                `;
+                
+                // 2秒后恢复原状
+                setTimeout(() => {
+                    copyBtn.classList.remove('copied');
+                    copyBtn.innerHTML = originalHTML;
+                }, 2000);
+            }).catch(err => {
+                console.error('复制失败:', err);
+                alert('复制失败，请手动复制');
+            });
         }
 
         // 初始化

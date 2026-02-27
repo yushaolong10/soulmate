@@ -1,105 +1,116 @@
-# finetune_gpu.py
-# LoRA SFT for Qwen (chat style) with response-only loss (train only assistant tokens)
-# Optimized for Linux CUDA training
+# sft_gpu.py
+# LoRA SFT for Qwen (chat style) - 只训练 label 部分
+# 适用于 format_data.py 生成的数据格式
 #
 # Requirements:
 #   pip install -U "transformers>=4.41" datasets accelerate peft torch
 #
 # Data format (JSONL):
-# {"messages":[{"role":"system","content":"..."},{"role":"user","content":"..."},{"role":"assistant","content":"..."},...]}
-# 支持多轮对话：一条 system + 多组 user/assistant
+# {
+#   "messages": [{"role":"system","content":"..."},{"role":"user","content":"..."},{"role":"assistant","content":"..."},...,{"role":"user","content":"..."}],
+#   "label": "AI回复内容"
+# }
 #
 # Run:
-#   CUDA_VISIBLE_DEVICES=1 python finetune_gpu.py
+#   CUDA_VISIBLE_DEVICES=0 python sft_gpu.py
 #
 # Output:
-#   ./qwen_lora_adapter  (LoRA adapter weights + tokenizer)
+#   ./qwen_lora_adapter_0211  (LoRA adapter weights + tokenizer)
+#
+# 重要修复 (2026-02-26):
+#   - 降低 LoRA alpha 从 32 到 16，使 scaling=1，避免 bfloat16 数值溢出
+#   - 降低学习率从 1e-4 到 3e-5
+#   - 添加梯度裁剪 max_grad_norm=1.0
+#   - 添加训练过程数值检查
 
 import os
+import math
 from dataclasses import dataclass
 from typing import Dict, List, Any
 
 import torch
 from datasets import load_dataset
-from modelscope import (
-    AutoTokenizer,
-    AutoModelForCausalLM,
-)
-from transformers import Trainer, TrainingArguments
+from modelscope import AutoTokenizer, AutoModelForCausalLM
+from transformers import Trainer, TrainingArguments, TrainerCallback
 from peft import LoraConfig, get_peft_model
+
 
 # -----------------------------
 # User config
 # -----------------------------
-MODEL_NAME = os.environ.get("MODEL_NAME", "Qwen/Qwen3-1.7B")
-TRAIN_FILE = os.environ.get("TRAIN_FILE", "datasets/train_0119_s.jsonl")
-OUTPUT_DIR = os.environ.get("OUTPUT_DIR", "qwen_lora_adapter_0119_s")
+MODEL_NAME = os.environ.get("MODEL_NAME", "Qwen/Qwen3-14B")
+TRAIN_FILE = os.environ.get("TRAIN_FILE", "datasets0211_train/train/train_h_10000.jsonl")
+OUTPUT_DIR = os.environ.get("OUTPUT_DIR", "qwen_lora_adapter_0226_1h")
 
 MAX_SEQ_LEN = int(os.environ.get("MAX_SEQ_LEN", "4096"))
 EPOCHS = float(os.environ.get("EPOCHS", "3"))
-LR = float(os.environ.get("LR", "1e-4"))
+LR = float(os.environ.get("LR", "3e-5"))  # 降低学习率，避免训练不稳定
 
-PER_DEVICE_BS = int(os.environ.get("PER_DEVICE_BS", "1"))
+PER_DEVICE_BS = int(os.environ.get("PER_DEVICE_BS", "2"))
 GRAD_ACCUM = int(os.environ.get("GRAD_ACCUM", "16"))
 
-SAVE_STEPS = int(os.environ.get("SAVE_STEPS", "5"))
-LOG_STEPS = int(os.environ.get("LOG_STEPS", "1"))
+SAVE_STEPS = int(os.environ.get("SAVE_STEPS", "50"))
+LOG_STEPS = int(os.environ.get("LOG_STEPS", "5"))
 
 # LoRA hyperparameters
+# 关键：alpha/r 比例决定 LoRA 的 scaling factor
+# - 旧配置 r=16, alpha=32 -> scaling=2.0 -> 在 bfloat16 下产生 NaN
+# - 新配置 r=16, alpha=16 -> scaling=1.0 -> 数值稳定
 LORA_R = int(os.environ.get("LORA_R", "16"))
-LORA_ALPHA = int(os.environ.get("LORA_ALPHA", "32"))
+LORA_ALPHA = int(os.environ.get("LORA_ALPHA", "16"))  # 必须 <= r，避免 scaling > 1
 LORA_DROPOUT = float(os.environ.get("LORA_DROPOUT", "0.05"))
 
 
 # -----------------------------
-# Helper: build chat text and response-only labels
+# Helper: build input_ids and labels
 # -----------------------------
-def build_text_and_labels(
-    tokenizer, messages: List[Dict[str, str]], max_seq_len: int
+def build_input_and_labels(
+    tokenizer,
+    messages: List[Dict[str, str]],
+    label: str,
+    max_seq_len: int,
 ) -> Dict[str, Any]:
     """
-    构建 input_ids 和 labels，只对 assistant 的回复计算 loss。
+    构建 input_ids 和 labels。
 
-    策略：逐条消息构建，对每条消息计算其对应的 token 范围，
-    只有 assistant 消息的 token 才会被设置为有效 label。
+    数据格式:
+    - messages: 包含 system + 多轮 user/assistant + 最后一个 user
+    - label: 最后一轮 AI 的回复
+
+    训练策略:
+    - messages 部分作为上下文，不计算 loss (labels = -100)
+    - label 部分计算 loss
     """
-    input_ids: List[int] = []
-    labels: List[int] = []
+    # 1. 构建完整的对话（包含 label 作为最后一个 assistant 回复）
+    full_messages = messages.copy()
+    full_messages.append({"role": "assistant", "content": label})
 
-    prefix_messages: List[Dict[str, str]] = []
+    # 2. 获取完整对话的文本和 token
+    # 注意：enable_thinking=False 与推理时保持一致，避免 <think> 标签干扰
+    full_text = tokenizer.apply_chat_template(
+        full_messages, tokenize=False, add_generation_prompt=False, enable_thinking=False
+    )
+    full_ids = tokenizer(full_text, add_special_tokens=False).input_ids
 
-    for i, msg in enumerate(messages):
-        prefix_messages.append(msg)
+    # 3. 获取不含 label 的 messages 部分（带 generation prompt）
+    # 注意：enable_thinking=False 与推理时保持一致
+    prompt_text = tokenizer.apply_chat_template(
+        messages, tokenize=False, add_generation_prompt=True, enable_thinking=False
+    )
+    prompt_ids = tokenizer(prompt_text, add_special_tokens=False).input_ids
 
-        # 获取当前前缀的完整文本
-        full_text = tokenizer.apply_chat_template(
-            prefix_messages, tokenize=False, add_generation_prompt=False
-        )
-        full_ids = tokenizer(full_text, add_special_tokens=False).input_ids
+    # 4. 构建 labels
+    # prompt 部分不计算 loss，label 部分计算 loss
+    prompt_len = len(prompt_ids)
+    labels = [-100] * prompt_len + full_ids[prompt_len:]
 
-        # 计算新增的 token
-        if i == 0:
-            new_ids = full_ids
-        else:
-            prev_text = tokenizer.apply_chat_template(
-                prefix_messages[:-1], tokenize=False, add_generation_prompt=False
-            )
-            prev_ids = tokenizer(prev_text, add_special_tokens=False).input_ids
-            new_ids = full_ids[len(prev_ids) :]
+    # 确保 input_ids 和 labels 长度一致
+    input_ids = full_ids
+    if len(labels) != len(input_ids):
+        # 如果长度不一致，使用 full_ids 作为 labels，只 mask prompt 部分
+        labels = [-100] * prompt_len + input_ids[prompt_len:]
 
-        input_ids.extend(new_ids)
-
-        # Labels 策略：只有 assistant 消息的 token 参与训练
-        if msg["role"] == "assistant":
-            labels.extend(new_ids)
-        elif msg["role"] == "user":
-            # 给 user 一点点 loss
-            labels.extend(new_ids)  # 或部分
-        else:
-            labels.extend([-100] * len(new_ids))
-
-
-    # 截断
+    # 5. 截断
     if len(input_ids) > max_seq_len:
         input_ids = input_ids[:max_seq_len]
         labels = labels[:max_seq_len]
@@ -113,6 +124,24 @@ def build_text_and_labels(
     }
 
 
+# -----------------------------
+# 训练过程中检测 NaN/Inf 的回调
+# -----------------------------
+class NaNDetectorCallback(TrainerCallback):
+    """训练过程中检测 NaN/Inf 的回调"""
+
+    def on_log(self, args, state, control, logs=None, **kwargs):
+        if logs is not None:
+            loss = logs.get("loss", None)
+            if loss is not None:
+                if math.isnan(loss) or math.isinf(loss):
+                    print(f"\n❌ 检测到异常 loss: {loss}")
+                    print(f"   Step: {state.global_step}")
+                    print(f"   停止训练...")
+                    control.should_training_stop = True
+        return control
+
+        
 @dataclass
 class DataCollatorForCausalLM:
     """
@@ -203,9 +232,10 @@ def main():
 
     def preprocess(example):
         messages = example.get("messages", [])
-        if not messages:
-            raise ValueError("Each example must have a non-empty `messages` list.")
-        return build_text_and_labels(tokenizer, messages, MAX_SEQ_LEN)
+        label = example.get("label", "")
+        if not messages or not label:
+            raise ValueError("Each example must have non-empty `messages` and `label`.")
+        return build_input_and_labels(tokenizer, messages, label, MAX_SEQ_LEN)
 
     ds = ds.map(preprocess, remove_columns=ds.column_names, num_proc=4)
 
@@ -214,7 +244,7 @@ def main():
     train_tokens = sum(sum(1 for l in x["labels"] if l != -100) for x in ds)
     print(f"   Total tokens: {total_tokens:,}")
     print(
-        f"   Trainable tokens (assistant only): {train_tokens:,} ({train_tokens/total_tokens*100:.1f}%)"
+        f"   Trainable tokens (label only): {train_tokens:,} ({train_tokens/total_tokens*100:.1f}%)"
     )
 
     # --------
@@ -226,13 +256,33 @@ def main():
         lora_dropout=LORA_DROPOUT,
         bias="none",
         task_type="CAUSAL_LM",
-        target_modules=["q_proj", "k_proj", "v_proj", "o_proj", "up_proj", "down_proj"],
+        target_modules=[
+            "q_proj",
+            "k_proj",
+            "v_proj",
+            "o_proj",
+            "gate_proj",
+            "up_proj",
+            "down_proj",
+        ],
     )
 
     # 应用 LoRA
     print("🔹 Applying LoRA...")
+    print(f"   r={LORA_R}, alpha={LORA_ALPHA}, scaling={LORA_ALPHA/LORA_R:.2f}")
     model = get_peft_model(model, lora_config)
     model.print_trainable_parameters()
+
+    # 验证模型初始状态
+    print("🔹 Verifying model initialization...")
+    with torch.no_grad():
+        test_input = tokenizer("你好", return_tensors="pt").to(model.device)
+        test_output = model(**test_input)
+        test_logits = test_output.logits
+        print(f"   Initial logits range: [{test_logits.min().item():.2f}, {test_logits.max().item():.2f}]")
+        if torch.isnan(test_logits).any() or torch.isinf(test_logits).any():
+            raise ValueError("❌ Model produces NaN/Inf before training! Check LoRA config.")
+    print("   ✅ Model verification passed")
 
     # --------
     # Training args
@@ -258,6 +308,8 @@ def main():
         dataloader_pin_memory=True,
         warmup_ratio=0.03,
         lr_scheduler_type="cosine",
+        # 梯度裁剪，防止梯度爆炸
+        max_grad_norm=1.0,
         # Gradient checkpointing
         gradient_checkpointing=True,
         gradient_checkpointing_kwargs={"use_reentrant": False},
@@ -274,6 +326,7 @@ def main():
         args=training_args,
         train_dataset=ds,
         data_collator=data_collator,
+        callbacks=[NaNDetectorCallback()],  # 添加 NaN 检测
     )
 
     # --------

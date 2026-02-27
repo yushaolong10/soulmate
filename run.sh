@@ -24,19 +24,23 @@ fi
 pip install -r requirements.txt
 
 
-
-# BASE_MODEL=Qwen/Qwen3-1.7B \
-# LORA_DIR=./qwen_lora_adapter_0119_s \
-# DEVICE=cpu \
-# DTYPE=float16 \
-# SERVED_MODEL_NAME=soulmate \
-# uvicorn server:app --host 0.0.0.0 --port 8026
-
+#非量化
 
 BASE_MODEL=Qwen/Qwen3-14B \
-LORA_DIR=./qwen_lora_adapter_0119_lw \
+SFT_LORA_DIR=./qwen_lora_adapter_0211_1w \
+DPO_LORA_DIR=./qwen_lora_dpo_0211_800 \
 DEVICE=cuda \
 CUDA_VISIBLE_DEVICES=1 \
 DTYPE=float16 \
 SERVED_MODEL_NAME=soulmate \
 uvicorn server_gpu:app --host 0.0.0.0 --port 8026
+
+# 8bit 量化
+
+# BASE_MODEL=Qwen/Qwen3-14B \
+# SFT_LORA_DIR=./qwen_lora_adapter_0226_1w_8bit \
+# DPO_LORA_DIR=./qwen_lora_dpo_0226_1700_8bit \
+# DEVICE=cuda \
+# CUDA_VISIBLE_DEVICES=1 \
+# SERVED_MODEL_NAME=geek \
+# uvicorn server_gpu_8bit:app --host 0.0.0.0 --port 8026

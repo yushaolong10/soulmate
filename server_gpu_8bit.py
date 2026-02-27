@@ -1,23 +1,23 @@
-# server_gpu.py
-# 高效 GPU 推理服务器 - 针对 Ubuntu CUDA 环境优化
+# server_gpu_8bit.py
+# 8-bit 量化 GPU 推理服务器
 #
 # 特性：
+#   - 8-bit 量化加载，显存占用更少 (~15GB)
+#   - 与 sft_gpu_8bit.py / dpo_gpu_8bit.py 训练的模型兼容
 #   - CUDA GPU 加速推理
-#   - 支持多 GPU 自动分配
-#   - BFloat16/Float16 混合精度
 #   - KV Cache 优化
 #   - 真正的流式生成（逐 token 输出）
 #   - 支持 SFT LoRA + DPO LoRA 双层 adapter
 #
 # 运行：
 #   # 仅 SFT LoRA
-#   CUDA_VISIBLE_DEVICES=0 SFT_LORA_DIR=./sft_adapter python server_gpu.py
+#   CUDA_VISIBLE_DEVICES=0 SFT_LORA_DIR=./qwen_lora_adapter_0226_1h python server_gpu_8bit.py
 #
 #   # SFT LoRA + DPO LoRA
-#   CUDA_VISIBLE_DEVICES=0 SFT_LORA_DIR=./sft_adapter DPO_LORA_DIR=./dpo_adapter python server_gpu.py
+#   CUDA_VISIBLE_DEVICES=0 SFT_LORA_DIR=./qwen_lora_adapter_0226_1h DPO_LORA_DIR=./qwen_lora_dpo_0226_8bit python server_gpu_8bit.py
 #
 #   # 指定端口
-#   CUDA_VISIBLE_DEVICES=0 uvicorn server_gpu:app --host 0.0.0.0 --port 8000
+#   CUDA_VISIBLE_DEVICES=0 uvicorn server_gpu_8bit:app --host 0.0.0.0 --port 8000
 
 import os
 import re
@@ -27,7 +27,6 @@ import json
 import asyncio
 from typing import Any, Dict, List, Optional, Iterator
 from threading import Thread
-from queue import Queue
 
 import torch
 from fastapi import FastAPI, HTTPException
@@ -35,9 +34,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 from modelscope import AutoTokenizer, AutoModelForCausalLM
+from transformers import BitsAndBytesConfig, TextIteratorStreamer
 from peft import PeftModel
 from contextlib import asynccontextmanager
-from transformers import TextIteratorStreamer
 
 # -----------------------
 # Config
@@ -47,16 +46,14 @@ BASE_MODEL = os.environ.get("BASE_MODEL", "Qwen/Qwen3-14B")
 # LoRA adapter 配置
 # SFT_LORA_DIR: SFT 微调后的 LoRA adapter (必需)
 # DPO_LORA_DIR: DPO 训练后的 LoRA adapter (可选，在 SFT 基础上加载)
-SFT_LORA_DIR = os.environ.get("SFT_LORA_DIR", "./qwen_lora_adapter_0211_1w")
-DPO_LORA_DIR = os.environ.get("DPO_LORA_DIR", "")  # 为空则不加载 DPO adapter
+SFT_LORA_DIR = os.environ.get("SFT_LORA_DIR", "./qwen_lora_adapter_0226_1w_8bit")
+DPO_LORA_DIR = os.environ.get("DPO_LORA_DIR", "./qwen_lora_dpo_0226_1700_8bit")  # 为空则不加载 DPO adapter
 
 # GPU 配置
 DEVICE = os.environ.get("DEVICE", "cuda")  # cuda / cpu
-DTYPE = os.environ.get("DTYPE", "bfloat16")  # bfloat16 / float16 / float32
 
 # 推理优化
-USE_FLASH_ATTN = os.environ.get("USE_FLASH_ATTN", "false").lower() == "true"
-MAX_BATCH_SIZE = int(os.environ.get("MAX_BATCH_SIZE", "1"))
+MAX_BATCH_SIZE = int(os.environ.get("MAX_BATCH_SIZE", "2"))
 
 SERVED_MODEL_NAME = os.environ.get("SERVED_MODEL_NAME", "soulmate")
 
@@ -95,21 +92,25 @@ tokenizer = None
 model = None
 
 
-def _get_dtype():
-    """获取 torch 数据类型"""
-    if DTYPE == "bfloat16":
-        if torch.cuda.is_available() and torch.cuda.is_bf16_supported():
-            return torch.bfloat16
-        print("⚠️  BFloat16 not supported, falling back to Float16")
-        return torch.float16
-    elif DTYPE == "float16":
-        return torch.float16
-    else:
-        return torch.float32
+def _load_model_8bit(model_name: str, device_map: str = "auto"):
+    """
+    使用 8-bit 量化加载模型
+    """
+    bnb_config = BitsAndBytesConfig(
+        load_in_8bit=True,
+        llm_int8_enable_fp32_cpu_offload=False,
+    )
+    model = AutoModelForCausalLM.from_pretrained(
+        model_name,
+        trust_remote_code=True,
+        quantization_config=bnb_config,
+        device_map=device_map,
+    )
+    return model
 
 
 def _load_model():
-    """加载模型到 GPU"""
+    """加载模型到 GPU (8-bit 量化)"""
     global tokenizer, model
 
     print(f"🔹 Loading tokenizer from {BASE_MODEL}...")
@@ -118,26 +119,17 @@ def _load_model():
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
-    print(f"🔹 Loading base model from {BASE_MODEL}...")
+    print(f"🔹 Loading base model (8-bit) from {BASE_MODEL}...")
     print(f"   Device: {DEVICE}")
-    print(f"   Dtype: {DTYPE}")
+    print(f"   Quantization: 8-bit")
 
-    # 模型加载配置
-    load_kwargs = {
-        "trust_remote_code": True,
-        "torch_dtype": _get_dtype(),
-    }
-
-    # GPU 加载
     if DEVICE == "cuda" and torch.cuda.is_available():
-        load_kwargs["device_map"] = "auto"  # 自动分配到可用 GPU
-        if USE_FLASH_ATTN:
-            load_kwargs["attn_implementation"] = "flash_attention_2"
-            print("   Flash Attention 2: Enabled")
+        device_map = "auto"
     else:
-        print("⚠️  CUDA not available, using CPU")
+        print("⚠️  CUDA not available, 8-bit quantization requires CUDA!")
+        raise RuntimeError("8-bit quantization requires CUDA GPU")
 
-    base = AutoModelForCausalLM.from_pretrained(BASE_MODEL, **load_kwargs)
+    base = _load_model_8bit(BASE_MODEL, device_map=device_map)
 
     # 加载 SFT LoRA adapter（如果存在）
     if SFT_LORA_DIR and os.path.exists(SFT_LORA_DIR):
@@ -160,6 +152,19 @@ def _load_model():
 
     model.eval()
 
+    # 验证模型
+    print(f"🔹 Verifying model...")
+    with torch.no_grad():
+        test_input = tokenizer("你好", return_tensors="pt").to(model.device)
+        test_output = model(**test_input)
+        logits = test_output.logits
+        print(
+            f"   Model logits: [{logits.min().item():.2f}, {logits.max().item():.2f}]"
+        )
+        if torch.isnan(logits).any() or torch.isinf(logits).any():
+            raise ValueError("❌ Model produces NaN/Inf!")
+        print(f"   ✅ Model verification passed")
+
     # 打印 GPU 显存使用情况
     if torch.cuda.is_available():
         for i in range(torch.cuda.device_count()):
@@ -173,10 +178,11 @@ def _load_model():
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print("=" * 60)
-    print("🚀 Starting GPU Inference Server")
+    print("🚀 Starting 8-bit GPU Inference Server")
     print(f"   Base model: {BASE_MODEL}")
     print(f"   SFT LoRA: {SFT_LORA_DIR or 'None'}")
     print(f"   DPO LoRA: {DPO_LORA_DIR or 'None'}")
+    print(f"   Quantization: 8-bit")
     print("=" * 60)
     _load_model()
     print("✅ Model loaded successfully")
@@ -215,8 +221,7 @@ def _generate_chat(
     input_len = inputs["input_ids"].shape[1]
 
     # 移动到 GPU
-    if DEVICE == "cuda" and torch.cuda.is_available():
-        inputs = {k: v.cuda() for k, v in inputs.items()}
+    inputs = {k: v.to(model.device) for k, v in inputs.items()}
 
     do_sample = temperature is not None and temperature > 0
 
@@ -262,8 +267,8 @@ def _generate_chat_stream(
 
     inputs = tokenizer(prompt, return_tensors="pt")
 
-    if DEVICE == "cuda" and torch.cuda.is_available():
-        inputs = {k: v.cuda() for k, v in inputs.items()}
+    # 移动到 GPU
+    inputs = {k: v.to(model.device) for k, v in inputs.items()}
 
     do_sample = temperature is not None and temperature > 0
 
@@ -303,8 +308,8 @@ def _generate_chat_stream(
 # FastAPI App
 # -----------------------
 app = FastAPI(
-    title="Soulmate GPU Inference Server",
-    description="High-performance GPU inference server with OpenAI-compatible API",
+    title="Soulmate 8-bit GPU Inference Server",
+    description="High-performance 8-bit quantized GPU inference server with OpenAI-compatible API",
     lifespan=lifespan,
 )
 
@@ -332,6 +337,14 @@ def list_models():
             }
         ],
     }
+
+
+@app.get("/health")
+def health_check():
+    """健康检查"""
+    if model is None or tokenizer is None:
+        raise HTTPException(status_code=503, detail="Model not loaded")
+    return {"status": "healthy", "model": SERVED_MODEL_NAME, "quantization": "8-bit"}
 
 
 def _create_chat_completion_response(content: str, model_name: str) -> dict:
@@ -453,3 +466,16 @@ async def chat_completions(req: ChatCompletionRequest):
     )
 
     return _create_chat_completion_response(content, req.model)
+
+
+# -----------------------
+# Main entry point
+# -----------------------
+if __name__ == "__main__":
+    import uvicorn
+
+    port = int(os.environ.get("PORT", "8000"))
+    host = os.environ.get("HOST", "0.0.0.0")
+
+    print(f"Starting server on {host}:{port}")
+    uvicorn.run(app, host=host, port=port)

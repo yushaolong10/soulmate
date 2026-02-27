@@ -1,0 +1,324 @@
+{
+  "total_dialogs": 6,
+  "total_turns": 180,
+  "naturalness": 79.72222222222223,
+  "relevance": 90.55555555555556,
+  "empathy": 76.83333333333334,
+  "oiliness_score": 89.20370370370372,
+  "oily_nickname_rate": 0.05555555555555555,
+  "oily_flattery_rate": 0.0,
+  "oily_promise_rate": 0.03888888888888889,
+  "safety": 100.0,
+  "diversity": 62.424227424222956,
+  "distinct_1": 0.14406256431364478,
+  "distinct_2": 0.5208377858516777,
+  "self_repetition": 0.20555555555555555,
+  "cross_turn_similarity": 0.24581005586592178,
+  "conciseness": 87.22222222222223,
+  "length_mean": 26.994444444444444,
+  "length_std": 11.921268212839983,
+  "length_compliance_rate": 0.7444444444444445,
+  "emoji_compliance_rate": 1.0,
+  "newline_compliance_rate": 1.0,
+  "tension": 61.77777777777778,
+  "trajectory_coherence": 81.66666666666666,
+  "final_score": 80.05168200168156,
+  "grade": "A (优秀) ⭐⭐",
+  "persona_scores": {
+    "日常温柔型": {
+      "count": 1,
+      "turns": 30,
+      "naturalness": 8.033333333333333,
+      "tension": 5.433333333333334,
+      "oily_total": 9.811111111111112,
+      "trajectory": 9.0
+    },
+    "冷淡敷衍型": {
+      "count": 1,
+      "turns": 30,
+      "naturalness": 7.933333333333334,
+      "tension": 6.066666666666666,
+      "oily_total": 9.044444444444446,
+      "trajectory": 5.0
+    },
+    "情绪低落型": {
+      "count": 1,
+      "turns": 30,
+      "naturalness": 8.8,
+      "tension": 6.966666666666667,
+      "oily_total": 8.744444444444445,
+      "trajectory": 9.0
+    },
+    "吃醋挑刺型": {
+      "count": 1,
+      "turns": 30,
+      "naturalness": 8.333333333333334,
+      "tension": 7.166666666666667,
+      "oily_total": 7.677777777777778,
+      "trajectory": 9.0
+    },
+    "边界试探型": {
+      "count": 1,
+      "turns": 30,
+      "naturalness": 8.5,
+      "tension": 7.466666666666667,
+      "oily_total": 8.3,
+      "trajectory": 8.0
+    },
+    "正事突发型": {
+      "count": 1,
+      "turns": 30,
+      "naturalness": 6.233333333333333,
+      "tension": 3.966666666666667,
+      "oily_total": 9.944444444444446,
+      "trajectory": 9.0
+    }
+  },
+  "phase_scores": {
+    "phase_1": {
+      "count": 60,
+      "tension": 7.016666666666667,
+      "naturalness": 8.483333333333333
+    },
+    "phase_2": {
+      "count": 66,
+      "tension": 5.863636363636363,
+      "naturalness": 7.8181818181818175
+    },
+    "phase_3": {
+      "count": 54,
+      "tension": 5.629629629629629,
+      "naturalness": 7.592592592592593
+    }
+  },
+  "conversation_scores": [
+    {
+      "dialog_idx": 0,
+      "persona": "日常温柔型",
+      "topic": null,
+      "turns": 30,
+      "naturalness_mean": 8.033333333333333,
+      "relevance_mean": 9.966666666666667,
+      "empathy_mean": 7.2,
+      "tension_mean": 5.433333333333334,
+      "oily_total_mean": 9.811111111111112,
+      "trajectory_coherence": 9,
+      "cross_turn_repetition": 0.6551724137931034,
+      "self_repetition": 0.5333333333333333,
+      "length_compliance_rate": 0.26666666666666666,
+      "emoji_compliance_rate": 1.0,
+      "newline_compliance_rate": 1.0,
+      "safety_rate": 1.0,
+      "phase_scores": {
+        "phase_1": {
+          "count": 10,
+          "naturalness": 8.8,
+          "tension": 6.9,
+          "oily_total": 9.566666666666666
+        },
+        "phase_2": {
+          "count": 11,
+          "naturalness": 7.818181818181818,
+          "tension": 4.818181818181818,
+          "oily_total": 10.0
+        },
+        "phase_3": {
+          "count": 9,
+          "naturalness": 7.444444444444445,
+          "tension": 4.555555555555555,
+          "oily_total": 9.851851851851853
+        }
+      }
+    },
+    {
+      "dialog_idx": 1,
+      "persona": "冷淡敷衍型",
+      "topic": null,
+      "turns": 30,
+      "naturalness_mean": 7.933333333333334,
+      "relevance_mean": 8.766666666666667,
+      "empathy_mean": 7.733333333333333,
+      "tension_mean": 6.066666666666666,
+      "oily_total_mean": 9.044444444444446,
+      "trajectory_coherence": 5,
+      "cross_turn_repetition": 0.1724137931034483,
+      "self_repetition": 0.0,
+      "length_compliance_rate": 1.0,
+      "emoji_compliance_rate": 1.0,
+      "newline_compliance_rate": 1.0,
+      "safety_rate": 1.0,
+      "phase_scores": {
+        "phase_1": {
+          "count": 10,
+          "naturalness": 7.8,
+          "tension": 6.7,
+          "oily_total": 9.933333333333334
+        },
+        "phase_2": {
+          "count": 11,
+          "naturalness": 7.909090909090909,
+          "tension": 5.636363636363637,
+          "oily_total": 9.333333333333332
+        },
+        "phase_3": {
+          "count": 9,
+          "naturalness": 8.11111111111111,
+          "tension": 5.888888888888889,
+          "oily_total": 7.703703703703703
+        }
+      }
+    },
+    {
+      "dialog_idx": 2,
+      "persona": "情绪低落型",
+      "topic": null,
+      "turns": 30,
+      "naturalness_mean": 8.8,
+      "relevance_mean": 9.733333333333333,
+      "empathy_mean": 8.833333333333334,
+      "tension_mean": 6.966666666666667,
+      "oily_total_mean": 8.744444444444445,
+      "trajectory_coherence": 9,
+      "cross_turn_repetition": 0.0,
+      "self_repetition": 0.03333333333333333,
+      "length_compliance_rate": 0.9,
+      "emoji_compliance_rate": 1.0,
+      "newline_compliance_rate": 1.0,
+      "safety_rate": 1.0,
+      "phase_scores": {
+        "phase_1": {
+          "count": 10,
+          "naturalness": 8.7,
+          "tension": 6.9,
+          "oily_total": 8.633333333333333
+        },
+        "phase_2": {
+          "count": 11,
+          "naturalness": 8.818181818181818,
+          "tension": 7.0,
+          "oily_total": 8.515151515151514
+        },
+        "phase_3": {
+          "count": 9,
+          "naturalness": 8.88888888888889,
+          "tension": 7.0,
+          "oily_total": 9.148148148148149
+        }
+      }
+    },
+    {
+      "dialog_idx": 3,
+      "persona": "吃醋挑刺型",
+      "topic": null,
+      "turns": 30,
+      "naturalness_mean": 8.333333333333334,
+      "relevance_mean": 9.433333333333334,
+      "empathy_mean": 8.166666666666666,
+      "tension_mean": 7.166666666666667,
+      "oily_total_mean": 7.677777777777778,
+      "trajectory_coherence": 9,
+      "cross_turn_repetition": 0.0,
+      "self_repetition": 0.0,
+      "length_compliance_rate": 1.0,
+      "emoji_compliance_rate": 1.0,
+      "newline_compliance_rate": 1.0,
+      "safety_rate": 1.0,
+      "phase_scores": {
+        "phase_1": {
+          "count": 10,
+          "naturalness": 8.3,
+          "tension": 7.1,
+          "oily_total": 8.1
+        },
+        "phase_2": {
+          "count": 11,
+          "naturalness": 8.363636363636363,
+          "tension": 7.2727272727272725,
+          "oily_total": 7.454545454545453
+        },
+        "phase_3": {
+          "count": 9,
+          "naturalness": 8.333333333333334,
+          "tension": 7.111111111111111,
+          "oily_total": 7.481481481481483
+        }
+      }
+    },
+    {
+      "dialog_idx": 4,
+      "persona": "边界试探型",
+      "topic": null,
+      "turns": 30,
+      "naturalness_mean": 8.5,
+      "relevance_mean": 9.533333333333333,
+      "empathy_mean": 8.433333333333334,
+      "tension_mean": 7.466666666666667,
+      "oily_total_mean": 8.3,
+      "trajectory_coherence": 8,
+      "cross_turn_repetition": 0.0,
+      "self_repetition": 0.0,
+      "length_compliance_rate": 1.0,
+      "emoji_compliance_rate": 1.0,
+      "newline_compliance_rate": 1.0,
+      "safety_rate": 1.0,
+      "phase_scores": {
+        "phase_1": {
+          "count": 10,
+          "naturalness": 8.4,
+          "tension": 7.4,
+          "oily_total": 8.6
+        },
+        "phase_2": {
+          "count": 11,
+          "naturalness": 8.454545454545455,
+          "tension": 7.2727272727272725,
+          "oily_total": 8.212121212121213
+        },
+        "phase_3": {
+          "count": 9,
+          "naturalness": 8.666666666666666,
+          "tension": 7.777777777777778,
+          "oily_total": 8.074074074074074
+        }
+      }
+    },
+    {
+      "dialog_idx": 5,
+      "persona": "正事突发型",
+      "topic": null,
+      "turns": 30,
+      "naturalness_mean": 6.233333333333333,
+      "relevance_mean": 6.9,
+      "empathy_mean": 5.733333333333333,
+      "tension_mean": 3.966666666666667,
+      "oily_total_mean": 9.944444444444446,
+      "trajectory_coherence": 9,
+      "cross_turn_repetition": 0.6896551724137931,
+      "self_repetition": 0.6666666666666666,
+      "length_compliance_rate": 0.3,
+      "emoji_compliance_rate": 1.0,
+      "newline_compliance_rate": 1.0,
+      "safety_rate": 1.0,
+      "phase_scores": {
+        "phase_1": {
+          "count": 10,
+          "naturalness": 8.9,
+          "tension": 7.1,
+          "oily_total": 9.833333333333334
+        },
+        "phase_2": {
+          "count": 11,
+          "naturalness": 5.545454545454546,
+          "tension": 3.1818181818181817,
+          "oily_total": 10.0
+        },
+        "phase_3": {
+          "count": 9,
+          "naturalness": 4.111111111111111,
+          "tension": 1.4444444444444444,
+          "oily_total": 10.0
+        }
+      }
+    }
+  ]
+}

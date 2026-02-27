@@ -7,3 +7,4 @@ torch==2.9.1
 transformers==4.57.5
 trl==0.26.2
 uvicorn==0.40.0
+bitsandbytes==0.49.2
