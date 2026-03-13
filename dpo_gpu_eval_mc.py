@@ -87,21 +87,25 @@ class NaNDetectorCallback(TrainerCallback):
 # User config
 # -----------------------------
 BASE_MODEL = os.environ.get("BASE_MODEL", "Qwen/Qwen3-14B")
-SFT_LORA_DIR = os.environ.get("SFT_LORA_DIR", "qwen_lora_adapter_0305_50k_mc")  # SFT LoRA 模型路径
-TRAIN_FILE = os.environ.get("TRAIN_FILE", "datasets0305_train/dpo/dpo_data_3k.jsonl")
-OUTPUT_DIR = os.environ.get("OUTPUT_DIR", "qwen_lora_dpo_0305_3k_mc")
+SFT_LORA_DIR = os.environ.get("SFT_LORA_DIR", "qwen_lora_adapter_0311_48k_mc")  # SFT LoRA 模型路径
+TRAIN_FILE = os.environ.get("TRAIN_FILE", "datasets0305_train/dpo/dpo_data_rh_31h.jsonl")
+EVAL_FILE = os.environ.get("EVAL_FILE", "datasets0305_train/dpo/dpo_data_rt_220.jsonl")
+OUTPUT_DIR = os.environ.get("OUTPUT_DIR", "qwen_lora_dpo_0311_31h_220_mc")
 
 MAX_SEQ_LEN = int(os.environ.get("MAX_SEQ_LEN", "4096"))
 MAX_PROMPT_LEN = int(os.environ.get("MAX_PROMPT_LEN", "2048"))
 EPOCHS = float(os.environ.get("EPOCHS", "3"))
 LR = float(os.environ.get("LR", "3e-6"))
 
-PER_DEVICE_BS = int(os.environ.get("PER_DEVICE_BS", "2"))
-GRAD_ACCUM = int(os.environ.get("GRAD_ACCUM", "8"))
+PER_DEVICE_BS = int(os.environ.get("PER_DEVICE_BS", "1"))
+GRAD_ACCUM = int(os.environ.get("GRAD_ACCUM", "16"))
 
 SAVE_STEPS = int(os.environ.get("SAVE_STEPS", "50"))
+EVAL_STEPS = int(os.environ.get("EVAL_STEPS", str(SAVE_STEPS)))
 LOG_STEPS = int(os.environ.get("LOG_STEPS", "5"))
 SAVE_TOTAL_LIMIT = int(os.environ.get("SAVE_TOTAL_LIMIT", "10"))
+EVAL_SPLIT_RATIO = float(os.environ.get("EVAL_SPLIT_RATIO", "0.05"))
+LOAD_BEST_MODEL_AT_END = os.environ.get("LOAD_BEST_MODEL_AT_END", "1").strip().lower() not in {"0", "false", "no"}
 
 
 # DPO hyperparameters
@@ -110,7 +114,7 @@ BETA = float(os.environ.get("BETA", "0.1"))  # DPO 温度参数
 # DPO LoRA hyperparameters (新增的 DPO adapter)
 DPO_LORA_R = int(os.environ.get("DPO_LORA_R", "16"))
 DPO_LORA_ALPHA = int(os.environ.get("DPO_LORA_ALPHA", "32"))
-DPO_LORA_DROPOUT = float(os.environ.get("DPO_LORA_DROPOUT", "0.1"))
+DPO_LORA_DROPOUT = float(os.environ.get("DPO_LORA_DROPOUT", "0.05"))
 
 
 def build_prompt_text(tokenizer, messages: List[Dict[str, str]]) -> str:
@@ -153,6 +157,34 @@ def preprocess_dpo(example: Dict[str, Any], tokenizer) -> Dict[str, str]:
         "chosen": chosen,
         "rejected": rejected,
     }
+
+
+def load_and_prepare_dataset(data_file: str, tokenizer, split_name: str):
+    """加载、预处理并过滤 DPO 数据集。"""
+    print_rank0(f"🔹 Loading {split_name} dataset from {data_file}...")
+    ds = load_dataset("json", data_files={split_name: data_file})[split_name]
+    print_rank0(f"   {split_name} raw samples: {len(ds)}")
+
+    ds = ds.map(
+        lambda x: preprocess_dpo(x, tokenizer),
+        remove_columns=[
+            col
+            for col in ds.column_names
+            if col not in ["prompt", "chosen", "rejected"]
+        ],
+        num_proc=4,
+    )
+
+    original_len = len(ds)
+    ds = ds.filter(lambda x: len(x["chosen"]) >= 5 and len(x["rejected"]) >= 5)
+    filtered_len = len(ds)
+    if filtered_len < original_len and is_main_process():
+        print(
+            f"   Filtered {original_len - filtered_len} {split_name} samples "
+            f"with response < 5 chars"
+        )
+    print_rank0(f"   {split_name} samples (after filtering): {filtered_len}")
+    return ds
 
 
 def main():
@@ -269,35 +301,30 @@ def main():
     # --------
     # Dataset
     # --------
-    print_rank0(f"🔹 Loading dataset from {TRAIN_FILE}...")
-    ds = load_dataset("json", data_files={"train": TRAIN_FILE})["train"]
-    print_rank0(f"   Total samples: {len(ds)}")
+    train_ds = load_and_prepare_dataset(TRAIN_FILE, tokenizer, "train")
+    eval_ds = None
 
-    # 预处理数据
-    ds = ds.map(
-        lambda x: preprocess_dpo(x, tokenizer),
-        remove_columns=[
-            col
-            for col in ds.column_names
-            if col not in ["prompt", "chosen", "rejected"]
-        ],
-        num_proc=4,
-    )
-
-    # 过滤过短的样本（可能导致数值问题）
-    original_len = len(ds)
-    ds = ds.filter(lambda x: len(x["chosen"]) >= 5 and len(x["rejected"]) >= 5)
-    filtered_len = len(ds)
-    if filtered_len < original_len and is_main_process():
-        print(
-            f"   Filtered {original_len - filtered_len} samples with response < 5 chars"
+    if EVAL_FILE:
+        if not os.path.exists(EVAL_FILE):
+            raise FileNotFoundError(f"EVAL_FILE not found: {EVAL_FILE}")
+        eval_ds = load_and_prepare_dataset(EVAL_FILE, tokenizer, "eval")
+    elif EVAL_SPLIT_RATIO > 0:
+        split = train_ds.train_test_split(
+            test_size=EVAL_SPLIT_RATIO, seed=42, shuffle=True
         )
-    print_rank0(f"   Total samples (after filtering): {filtered_len}")
+        train_ds = split["train"]
+        eval_ds = split["test"]
+        print_rank0(
+            f"🔹 Split train/eval from TRAIN_FILE with ratio={EVAL_SPLIT_RATIO:.3f}: "
+            f"train={len(train_ds)}, eval={len(eval_ds)}"
+        )
+    else:
+        print_rank0("🔹 No eval dataset: evaluation disabled")
 
     # 打印样本示例 (仅主进程)
     if is_main_process():
         print("\n📝 Sample example:")
-        sample = ds[0]
+        sample = train_ds[0]
         print(f"   Prompt (truncated): {sample['prompt'][:200]}...")
         print(f"   Chosen: {sample['chosen'][:100]}...")
         print(f"   Rejected: {sample['rejected'][:100]}...")
@@ -312,13 +339,17 @@ def main():
     # --------
     # DPO Config
     # --------
-    dpo_config = DPOConfig(
+    use_eval = eval_ds is not None and len(eval_ds) > 0
+
+    dpo_config_kwargs = dict(
         output_dir=OUTPUT_DIR,
         num_train_epochs=EPOCHS,
         learning_rate=LR,
         per_device_train_batch_size=PER_DEVICE_BS,
+        per_device_eval_batch_size=PER_DEVICE_BS,
         gradient_accumulation_steps=GRAD_ACCUM,
         logging_steps=LOG_STEPS,
+        save_strategy="steps",
         save_steps=SAVE_STEPS,
         save_total_limit=SAVE_TOTAL_LIMIT,
         # DPO 参数
@@ -348,6 +379,21 @@ def main():
         gradient_checkpointing=True,
         gradient_checkpointing_kwargs={"use_reentrant": False},
     )
+    if use_eval:
+        dpo_config_kwargs.update(
+            eval_strategy="steps",
+            eval_steps=EVAL_STEPS,
+            load_best_model_at_end=LOAD_BEST_MODEL_AT_END,
+            metric_for_best_model="eval_loss",
+            greater_is_better=False,
+        )
+    else:
+        dpo_config_kwargs.update(
+            evaluation_strategy="no",
+            load_best_model_at_end=False,
+        )
+
+    dpo_config = DPOConfig(**dpo_config_kwargs)
 
     # --------
     # DPO Trainer
@@ -361,6 +407,15 @@ def main():
     print_rank0(f"   Beta (temperature): {BETA}")
     print_rank0(f"   Max sequence length: {MAX_SEQ_LEN}")
     print_rank0(f"   Max prompt length: {MAX_PROMPT_LEN}")
+    print_rank0(f"   Train samples: {len(train_ds)}")
+    if use_eval:
+        print_rank0(f"   Eval samples: {len(eval_ds)}")
+        print_rank0(
+            f"   Eval every {EVAL_STEPS} steps, "
+            f"load_best_model_at_end={LOAD_BEST_MODEL_AT_END}"
+        )
+    else:
+        print_rank0("   Eval: disabled")
 
     # ref_model=None + precompute_ref_log_probs=True：
     # DPOTrainer 训练前调用 model.disable_adapter() 得到 Merged(Base+SFT)
@@ -369,7 +424,8 @@ def main():
         model=model,
         ref_model=None,  # 不需要额外的 ref model
         args=dpo_config,
-        train_dataset=ds,
+        train_dataset=train_ds,
+        eval_dataset=eval_ds,
         processing_class=tokenizer,
         callbacks=[NaNDetectorCallback()],  # 添加 NaN 检测
     )

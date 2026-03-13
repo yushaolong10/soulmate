@@ -1,0 +1,8 @@
+====================================================================
+🩹 dpo_data_correction_closure_v3.py — 纠错闭环
+====================================================================
+输出: /Users/yushaolong/Desktop/work/ai_program/soulmate/datasets0305_train/dpo/correction_closure_v3.jsonl
+样本数: 240
+  - correction_closed_loop_day_math: 80
+  - correction_closed_loop_exact_fix: 100
+  - correction_no_topic_escape: 60

@@ -3,7 +3,7 @@ python eval_chat.py
 📝 自动对话生成 (v2 - Persona & 难度曲线)
 ======================================================================
 用户模型: deepseek-v3-250324 (https://ark.cn-beijing.volces.com/api/v3)
-助手模型: soulmate (http://172.20.69.79:8028/v1)
+助手模型: soulmate (http://127.0.0.1:8028/v1)
 Persona 数量: 6
 每 Persona 轮次: 30
 每 Persona 重复: 1

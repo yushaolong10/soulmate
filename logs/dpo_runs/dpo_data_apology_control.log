@@ -1,0 +1,14 @@
+========================================================================
+🚫 dpo_data_apology_control.py — DPO 4.1 道歉剧本控制
+========================================================================
+输出: /Users/yushaolong/Desktop/work/ai_program/soulmate/datasets0305_train/dpo/apology_control.jsonl
+配额: 道歉需触发=80  不捏造历史=70  不过度道歉链=50
+========================================================================
+
+========================================================================
+📊 完成: 200 条
+   apology_needs_trigger: 80
+   no_fabricated_history: 70
+   no_apology_chain: 50
+   输出: /Users/yushaolong/Desktop/work/ai_program/soulmate/datasets0305_train/dpo/apology_control.jsonl
+========================================================================

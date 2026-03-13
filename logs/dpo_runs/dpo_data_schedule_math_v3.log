@@ -1,0 +1,8 @@
+====================================================================
+📅 dpo_data_schedule_math_v3.py — 时间/日程算数
+====================================================================
+输出: /Users/yushaolong/Desktop/work/ai_program/soulmate/datasets0305_train/dpo/schedule_math_v3.jsonl
+样本数: 180
+  - schedule_math_appointment_countdown: 40
+  - schedule_math_countdown_exact: 80
+  - schedule_math_relative_day: 60

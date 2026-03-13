@@ -1,0 +1,23 @@
+========================================================================
+💞 dpo_data_empathy_companion.py — 高拟人共情/恋人陪伴
+========================================================================
+输出: /Users/yushaolong/Desktop/work/ai_program/soulmate/datasets0305_train/dpo/empathy_companion.jsonl
+system prompt 池: 35976
+========================================================================
+
+========================================================================
+📊 完成: 500 条
+   empathy_validation: 90
+   romantic_affection: 60
+   comfort_user: 60
+   playful_flirting: 55
+   jealousy_light: 20
+   persona_grounding: 45
+   memory_reference: 30
+   emotional_followup: 45
+   avoid_cold_logic: 25
+   soft_reassurance: 25
+   relationship_closeness: 25
+   natural_chat_flow: 20
+   输出: /Users/yushaolong/Desktop/work/ai_program/soulmate/datasets0305_train/dpo/empathy_companion.jsonl
+========================================================================

@@ -1,0 +1,14 @@
+========================================================================
+🔄 dpo_data_self_consistency.py — DPO 4.4 角色自身状态一致性
+========================================================================
+输出: /Users/yushaolong/Desktop/work/ai_program/soulmate/datasets0305_train/dpo/self_consistency.jsonl
+配额: 不前后矛盾=60  记住自己活动=50  计划不矛盾=40
+========================================================================
+
+========================================================================
+📊 完成: 150 条
+   no_state_contradiction: 60
+   remember_own_activity: 50
+   plan_self_consistent: 40
+   输出: /Users/yushaolong/Desktop/work/ai_program/soulmate/datasets0305_train/dpo/self_consistency.jsonl
+========================================================================

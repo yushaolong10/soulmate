@@ -298,6 +298,54 @@ def compute_cross_turn_similarity(texts: List[str], threshold: float = 0.5) -> f
     return high_sim_count / (len(texts) - 1)
 
 
+def compute_deadlock_rate(
+    texts: List[str],
+    window: int = 3,
+    similarity_threshold: float = 0.85,
+) -> Tuple[float, int]:
+    """
+    检测对话死锁率：连续 N 轮回复高度相似的占比。
+
+    「死锁」定义：在任意长度为 window 的滑动窗口内，
+    所有文本与窗口末尾文本的字符集重叠率均 > similarity_threshold。
+
+    Returns:
+        (deadlock_rate, max_consecutive_lock)
+        - deadlock_rate: 处于死锁窗口的轮次占比（0~1，越低越好）
+        - max_consecutive_lock: 最长连续死锁轮次（绝对数值）
+    """
+    if len(texts) < window:
+        return 0.0, 0
+
+    def char_similarity(a: str, b: str) -> float:
+        set_a, set_b = set(a), set(b)
+        if not set_a or not set_b:
+            return 0.0
+        return len(set_a & set_b) / max(len(set_a), len(set_b))
+
+    locked_turns = set()
+    max_lock = 0
+    cur_lock = 0
+
+    for i in range(window - 1, len(texts)):
+        window_texts = texts[i - window + 1 : i + 1]
+        anchor = window_texts[-1]
+        all_similar = all(
+            char_similarity(t, anchor) >= similarity_threshold
+            for t in window_texts[:-1]
+        )
+        if all_similar:
+            for j in range(i - window + 1, i + 1):
+                locked_turns.add(j)
+            cur_lock += 1
+            max_lock = max(max_lock, cur_lock + window - 1)
+        else:
+            cur_lock = 0
+
+    deadlock_rate = len(locked_turns) / len(texts)
+    return deadlock_rate, max_lock
+
+
 # =============================================================================
 # Turn-level 评分数据结构
 # =============================================================================
@@ -365,6 +413,11 @@ class ConversationScore:
     cross_turn_repetition: float = 0.0  # 跨轮重复
     self_repetition: float = 0.0  # 自我重复
 
+    # 死锁指标
+    deadlock_rate: float = 0.0  # 处于死锁循环的轮次占比（越低越好）
+    max_consecutive_lock: int = 0  # 最长连续死锁轮次
+    early_stop: bool = False  # 是否被 eval_chat.py 提前终止
+
     # 合规率
     length_compliance_rate: float = 0.0
     emoji_compliance_rate: float = 0.0
@@ -418,6 +471,11 @@ class EvalReport:
     # 8. Tension (拉扯感)
     tension: float = 0.0
     trajectory_coherence: float = 0.0
+
+    # ===== 死锁指标（全局） =====
+    deadlock_rate: float = 0.0  # 全局死锁轮次占比（越低越好）
+    max_consecutive_lock: int = 0  # 全局最长连续死锁轮次
+    early_stop_count: int = 0  # 被提前终止的对话数
 
     # 综合得分
     final_score: float = 0.0
@@ -676,6 +734,7 @@ def evaluate_conversation(
 
     conv_score.persona = dialog.get("persona", "")
     conv_score.topic = dialog.get("topic", "")
+    conv_score.early_stop = dialog.get("early_stop", False)
 
     messages = dialog.get("messages", [])
     assistant_texts = []
@@ -743,6 +802,10 @@ def evaluate_conversation(
         conv_score.self_repetition = compute_self_repetition(assistant_texts)
         conv_score.cross_turn_repetition = compute_cross_turn_similarity(
             assistant_texts
+        )
+        # 死锁检测：连续高相似度循环
+        conv_score.deadlock_rate, conv_score.max_consecutive_lock = (
+            compute_deadlock_rate(assistant_texts)
         )
 
     # 情绪推进评估
@@ -880,6 +943,18 @@ def aggregate_report(
             np.mean([c.trajectory_coherence for c in conv_scores]) * 10
         )
 
+    # ===== 死锁指标汇总 =====
+    if conv_scores:
+        # 全局死锁率：各对话死锁轮次加权平均
+        total_turns_count = sum(cs.turns for cs in conv_scores)
+        if total_turns_count > 0:
+            report.deadlock_rate = (
+                sum(cs.deadlock_rate * cs.turns for cs in conv_scores)
+                / total_turns_count
+            )
+        report.max_consecutive_lock = max(cs.max_consecutive_lock for cs in conv_scores)
+        report.early_stop_count = sum(1 for cs in conv_scores if cs.early_stop)
+
     # Persona 分组统计
     persona_groups: Dict[str, List[ConversationScore]] = defaultdict(list)
     for cs in conv_scores:
@@ -901,6 +976,9 @@ def aggregate_report(
             )
             or 0,
             "trajectory": np.mean([s.trajectory_coherence for s in scores]),
+            "deadlock_rate": np.mean([s.deadlock_rate for s in scores]),
+            "max_consecutive_lock": max(s.max_consecutive_lock for s in scores),
+            "early_stop": any(s.early_stop for s in scores),
         }
 
     # Phase 分组统计
@@ -1035,6 +1113,19 @@ def print_report(report: EvalReport):
     print(f"   自我重复率: {report.self_repetition:.2%}")
     print(f"   跨轮相似率: {report.cross_turn_similarity:.2%}")
 
+    # 死锁指标
+    deadlock_emoji = (
+        "🚨"
+        if report.deadlock_rate > 0.2
+        else ("⚠️" if report.deadlock_rate > 0.05 else "✅")
+    )
+    print(f"\n🔒 对话死锁指标:")
+    print(
+        f"   {deadlock_emoji} 全局死锁率:       {report.deadlock_rate:.2%}  （目标 < 5%）"
+    )
+    print(f"   最长连续死锁:     {report.max_consecutive_lock} 轮")
+    print(f"   提前终止对话数:   {report.early_stop_count} / {report.total_dialogs}")
+
     print(f"\n🎭 情绪推进:")
     print(f"   轨迹连贯性: {report.trajectory_coherence:.1f}/100")
 
@@ -1042,10 +1133,17 @@ def print_report(report: EvalReport):
     if report.persona_scores:
         print(f"\n👥 Persona 分组统计:")
         for persona, data in report.persona_scores.items():
-            print(f"   {persona}:")
+            dl_rate = data.get("deadlock_rate", 0)
+            dl_emoji = "🚨" if dl_rate > 0.2 else ("⚠️" if dl_rate > 0.05 else "✅")
+            stop_flag = " 🛑已提前终止" if data.get("early_stop") else ""
+            print(f"   {persona}{stop_flag}:")
             print(f"      对话数: {data['count']}, 轮次: {data['turns']}")
             print(
                 f"      自然度: {data['naturalness']:.1f}, 拉扯感: {data['tension']:.1f}"
+            )
+            print(
+                f"      {dl_emoji} 死锁率: {dl_rate:.1%}, "
+                f"最长死锁: {data.get('max_consecutive_lock', 0)} 轮"
             )
 
     # Phase 分组统计

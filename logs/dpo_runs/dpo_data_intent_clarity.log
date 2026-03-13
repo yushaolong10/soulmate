@@ -1,0 +1,14 @@
+========================================================================
+🎯 dpo_data_intent_clarity.py — DPO 4.3 意图理解清晰度
+========================================================================
+输出: /Users/yushaolong/Desktop/work/ai_program/soulmate/datasets0305_train/dpo/intent_clarity.jsonl
+配额: 纠正≠生气=60  疑问≠质问=50  中性陈述≠抱怨=40
+========================================================================
+
+========================================================================
+📊 完成: 150 条
+   correction_not_anger: 60
+   question_not_accusation: 50
+   statement_not_complaint: 40
+   输出: /Users/yushaolong/Desktop/work/ai_program/soulmate/datasets0305_train/dpo/intent_clarity.jsonl
+========================================================================

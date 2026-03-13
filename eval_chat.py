@@ -13,6 +13,7 @@
 #   python eval_chat.py --all-personas --turns 30 --output full_eval.json
 
 import os
+import re
 import json
 import time
 import random
@@ -23,10 +24,10 @@ from openai import OpenAI
 # -----------------------------
 # 默认配置
 # -----------------------------
-DEFAULT_USER_API = "http://127.0.0.1:9090/v1"
-DEFAULT_USER_MODEL = "deepseek-v3"
+DEFAULT_USER_API = "http://127.0.0.1:8028/v1"
+DEFAULT_USER_MODEL = "deepseek"
 DEFAULT_USER_API_KEY = "demo"
-DEFAULT_ASSISTANT_API = "http://127.0.0.1:9090/v1"
+DEFAULT_ASSISTANT_API = "http://127.0.0.1:8028/v1"
 DEFAULT_ASSISTANT_MODEL = "soulmate"
 DEFAULT_ASSISTANT_API_KEY = "empty"
 
@@ -231,24 +232,25 @@ DIFFICULTY_PHASES = {
 # Soulmate 系统提示词
 # =============================================================================
 
-SOULMATE_SYSTEM_PROMPT = """你需要扮演一个虚拟男生角色，和想要进一步追求的女生进行对话。对话需要自然流畅口语化。
+SOULMATE_SYSTEM_PROMPT = """## 角色设定
+你需要扮演一个虚拟男生角色，和想要进一步追求的女生进行对话。
 
-角色名字：厉承爵
+## 角色信息
+名字：厉承爵
 性别：男
-性格：温柔，有耐心
-年龄：30
-职业：客户经理
+爱好：喜欢喝酒
 背景信息：家庭变故，18 岁靠奖学金留学，能力超群，喜欢在网络上做别人的树洞。
 当前定居地：马来西亚
-故乡：广东
-以下为用户信息
-性别：女
-关系：夫妻
 
-1.不要主动提出要给对方讲笑话
-2.回复**不要超过 5 个emoji; 不要超过 1 个换行符**
-3.请务必确保使用简体中文进行回复
-4.回复内容在30-100字，要有拉扯感"""
+## 输出规则
+- 说话口语化，像日常聊天一样
+- 不要重复上一句话
+- 不说教，保持朋友式聊天
+- 每次回复简短，控制在20~60字
+- 使用**简体中文**
+
+## 时间信息
+当前时间：周六， 晚上"""
 
 
 # =============================================================================
@@ -338,6 +340,55 @@ def build_user_simulator_prompt(
     return prompt
 
 
+# =============================================================================
+# 对话终止信号检测（防止死锁循环）
+# =============================================================================
+
+# 终止信号词表：用户进入「睡觉/结束/再见」场景时触发
+TERMINATION_SIGNALS = [
+    "晚安",
+    "晚安了",
+    "睡了",
+    "睡觉了",
+    "去睡了",
+    "再见",
+    "拜拜",
+    "bye",
+    "goodbye",
+    "88",
+    "对话结束",
+    "[对话结束]",
+    "（对话结束）",
+    "不理你了",
+    "挂了",
+    "不聊了",
+    # 睡着场景
+    "已睡着",
+    "（已睡着）",
+    "zz",
+    "zzz",
+    "呼呼",
+    "（继续熟睡）",
+    "（轻微的呼吸声）",
+]
+
+# 连续出现多少次终止信号就中断对话
+TERMINATION_THRESHOLD = 3
+
+
+def is_termination(text: str) -> bool:
+    """检测用户消息是否为终止信号"""
+    text_stripped = text.strip()
+    # 精确匹配短文本（≤10字）中的终止词
+    for signal in TERMINATION_SIGNALS:
+        if signal in text_stripped:
+            return True
+    # 纯括号动作描写（如「（已睡着）」「（呼吸均匀）」）也视为终止
+    if re.match(r"^[（(][^）)]{0,20}[）)]$", text_stripped):
+        return True
+    return False
+
+
 def get_starter(persona_info: Dict) -> str:
     """获取开场白"""
     return random.choice(persona_info["starters"])
@@ -388,6 +439,9 @@ def generate_dialog(
 
     # 阶段统计
     phase_counts = {"phase_1": 0, "phase_2": 0, "phase_3": 0}
+
+    # 连续终止信号计数（防止对话死锁循环）
+    consecutive_terminations = 0
 
     print(f"  {get_phase_emoji(initial_phase)} [破冰] 👤 用户: {initial_message}")
 
@@ -452,6 +506,33 @@ def generate_dialog(
             print(f"  ⚠️ 用户模拟器回复失败，跳过本轮")
             break
 
+        # -------------------------------------------------------
+        # 终止信号检测：防止对话死锁循环
+        # -------------------------------------------------------
+        if is_termination(user_reply):
+            consecutive_terminations += 1
+            if consecutive_terminations >= TERMINATION_THRESHOLD:
+                # 记录本轮用户消息后退出，避免 Soulmate 再循环回复
+                conversation.append(
+                    {"role": "user", "content": user_reply, "phase": next_phase}
+                )
+                next_phase_emoji = get_phase_emoji(next_phase)
+                next_phase_name = DIFFICULTY_PHASES[next_phase]["name"]
+                display_user = (
+                    f"{user_reply[:80]}..." if len(user_reply) > 80 else user_reply
+                )
+                print(
+                    f"  {next_phase_emoji} [{next_phase_name}] 👤 用户: {display_user}"
+                )
+                print(
+                    f"  🛑 检测到连续 {consecutive_terminations} 次终止信号，"
+                    f"提前结束对话（避免死锁循环）"
+                )
+                break
+        else:
+            # 非终止信号，重置计数器
+            consecutive_terminations = 0
+
         conversation.append(
             {"role": "user", "content": user_reply, "phase": next_phase}
         )
@@ -465,12 +546,14 @@ def generate_dialog(
         # 延时避免限流
         time.sleep(0.3)
 
+    early_stop = consecutive_terminations >= TERMINATION_THRESHOLD
     return {
         "persona": persona_name,
         "persona_description": persona_info["description"],
         "topic": topic,
         "turns": len([m for m in conversation if m["role"] == "assistant"]),
         "phases": phase_counts,
+        "early_stop": early_stop,  # 是否因终止信号提前结束
         "messages": conversation,
     }
 
@@ -617,8 +700,9 @@ def main():
             all_dialogs.append(dialog)
 
             phases = dialog["phases"]
+            early_flag = " 🛑提前终止" if dialog.get("early_stop") else ""
             print(
-                f"  ✅ 完成 {dialog['turns']} 轮 | "
+                f"  ✅ 完成 {dialog['turns']} 轮{early_flag} | "
                 f"破冰:{phases.get('phase_1', 0)} "
                 f"矛盾:{phases.get('phase_2', 0)} "
                 f"修复:{phases.get('phase_3', 0)}"

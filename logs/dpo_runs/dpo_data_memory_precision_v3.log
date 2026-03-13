@@ -1,0 +1,10 @@
+====================================================================
+🧠 dpo_data_memory_precision_v3.py — 记忆精确性
+====================================================================
+输出: /Users/yushaolong/Desktop/work/ai_program/soulmate/datasets0305_train/dpo/memory_precision_v3.jsonl
+样本数: 180
+  - memory_prefer_confirmed_over_guess: 40
+  - memory_recall_only_confirmed: 80
+  - memory_unknown_detail_admit: 60
+chosen 长度范围: 25～45 字
+超出 25-45 字范围的样本数: 0

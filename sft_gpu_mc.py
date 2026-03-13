@@ -69,25 +69,27 @@ def print_rank0(*args, **kwargs):
 # User config
 # -----------------------------
 MODEL_NAME = os.environ.get("MODEL_NAME", "Qwen/Qwen3-14B")
-TRAIN_FILE = os.environ.get("TRAIN_FILE", "datasets0211_train/train/train_h_10000.jsonl")
-OUTPUT_DIR = os.environ.get("OUTPUT_DIR", "qwen_lora_adapter_0227_1w_mc")
+TRAIN_FILE = os.environ.get("TRAIN_FILE", "datasets0305_train/train_cbh_8_43k.jsonl")
+OUTPUT_DIR = os.environ.get("OUTPUT_DIR", "qwen_lora_adapter_0305_43k_mc")
 
 MAX_SEQ_LEN = int(os.environ.get("MAX_SEQ_LEN", "4096"))
-EPOCHS = float(os.environ.get("EPOCHS", "3"))
-LR = float(os.environ.get("LR", "3e-5"))  # 降低学习率，避免训练不稳定
+EPOCHS = float(os.environ.get("EPOCHS", "2"))
+LR = float(os.environ.get("LR", "5e-5"))  # 降低学习率，避免训练不稳定
 
-PER_DEVICE_BS = int(os.environ.get("PER_DEVICE_BS", "4"))
-GRAD_ACCUM = int(os.environ.get("GRAD_ACCUM", "16"))
+PER_DEVICE_BS = int(os.environ.get("PER_DEVICE_BS", "2"))
+GRAD_ACCUM = int(os.environ.get("GRAD_ACCUM", "8"))
 
-SAVE_STEPS = int(os.environ.get("SAVE_STEPS", "50"))
-LOG_STEPS = int(os.environ.get("LOG_STEPS", "5"))
+SAVE_STEPS = int(os.environ.get("SAVE_STEPS", "100"))
+LOG_STEPS = int(os.environ.get("LOG_STEPS", "20"))
+SAVE_TOTAL_LIMIT = int(os.environ.get("SAVE_TOTAL_LIMIT", "10"))  # 新增，保存最多10个
+
 
 # LoRA hyperparameters
 # 关键：alpha/r 比例决定 LoRA 的 scaling factor
-# - 旧配置 r=16, alpha=32 -> scaling=2.0 -> 在 bfloat16 下产生 NaN
+# - 旧配置 r=16, alpha=32 -> scaling=2.0 -> 更快收敛
 # - 新配置 r=16, alpha=16 -> scaling=1.0 -> 数值稳定
-LORA_R = int(os.environ.get("LORA_R", "16"))
-LORA_ALPHA = int(os.environ.get("LORA_ALPHA", "16"))  # 必须 <= r，避免 scaling > 1
+LORA_R = int(os.environ.get("LORA_R", "32"))
+LORA_ALPHA = int(os.environ.get("LORA_ALPHA", "32"))
 LORA_DROPOUT = float(os.environ.get("LORA_DROPOUT", "0.05"))
 
 
@@ -361,7 +363,7 @@ def main():
         gradient_accumulation_steps=GRAD_ACCUM,
         logging_steps=LOG_STEPS,
         save_steps=SAVE_STEPS,
-        save_total_limit=2,
+        save_total_limit=SAVE_TOTAL_LIMIT,
         # 精度设置
         bf16=True,
         fp16=False,
@@ -374,6 +376,7 @@ def main():
         dataloader_pin_memory=True,
         warmup_ratio=0.03,
         lr_scheduler_type="cosine",
+        dataloader_drop_last=True,
         # 梯度裁剪，防止梯度爆炸
         max_grad_norm=1.0,
         # Gradient checkpointing

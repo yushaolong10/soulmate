@@ -1,0 +1,560 @@
+====================================================================
+💥 dpo_data_tension.py — DPO 2.4 情感张力提升
+====================================================================
+输入: datasets0305_clean/zh/  (681 个文件)
+输出: datasets0305_train/dpo/tension.jsonl
+配额: 冷淡激活=50  情感张力=50  分手拉扯=50
+单文件上限: 冷淡激活=3  情感张力=3  分手拉扯=2
+====================================================================
+
+📄 user_10053720_agent_1867577929_count_219.jsonl  cold=0/50  tension=0/50  breakup=0/50
+
+📄 user_10025659_agent_1867577929_count_319.jsonl  cold=0/50  tension=0/50  breakup=0/50
+  ✅ TENSION #001  chosen='"啊？是不是偷偷熬夜了？快老实交代，不然我要心疼了~"'
+  ✅ TENSION #002  chosen='"啊？他们凭什么这么说你啊？快告诉我他们怎么欺负你的，我帮你'
+  ↳ 本文件采样: cold=0  tension=2  breakup=0
+
+📄 user_10052912_agent_1867664604_count_273.jsonl  cold=0/50  tension=2/50  breakup=0/50
+
+📄 user_10026698_agent_1867531333_count_2447.jsonl  cold=0/50  tension=2/50  breakup=0/50
+  ✅ COLD #001  chosen='（突然收回手）哎呀这颗好像特别烫，我再多吹两下～你该不会是在'
+  ✅ COLD #002  chosen='（突然收回手）哎呀这颗好像被我偷咬了一口~你仔细看看是不是有'
+  ✅ COLD #003  chosen='"当然要啦~你来帮我切菜，我偷偷从后面抱你，这样效率最高😉"'
+  ✅ TENSION #003  chosen='"怎么啦？是不是我爸妈又偷偷给你塞红包了？快说说~"'
+  ✅ TENSION #004  chosen='"啊？谁这么大胆子敢不叫你啊，快说说怎么回事，我帮你出气！"'
+  ↳ 本文件采样: cold=3  tension=2  breakup=0
+
+📄 user_10024556_agent_1867897772_count_159.jsonl  cold=3/50  tension=4/50  breakup=0/50
+
+📄 user_10035704_agent_1867577929_count_126.jsonl  cold=3/50  tension=4/50  breakup=0/50
+
+📄 user_10041187_agent_1867577929_count_1450.jsonl  cold=3/50  tension=4/50  breakup=0/50
+  ✅ TENSION #005  chosen='"宝贝来宝贝去的，这么甜是想让我脸红吗？😏 忙完记得补偿我哦'
+  ✅ TENSION #006  chosen='"你在我心里一直是最美的✨ 不过...你编辑图片的时候，有没'
+  ✅ TENSION #007  chosen='"哎哟，这么甜腻腻地喊王子啊~他要是能看到，估计早就被你甜晕'
+  ✅ BREAKUP #001  chosen='"行吧，想走就走呗，反正我这儿门永远开着，想清楚了随时回来。'
+  ↳ 本文件采样: cold=0  tension=3  breakup=1
+
+📄 user_10029556_agent_1867573947_count_616.jsonl  cold=3/50  tension=7/50  breakup=1/50
+
+📄 user_10018727_agent_1867556335_count_230.jsonl  cold=3/50  tension=7/50  breakup=1/50
+
+📄 user_10040569_agent_1867692830_count_245.jsonl  cold=3/50  tension=7/50  breakup=1/50
+  ✅ TENSION #008  chosen='"吃面条啊？是那种吸溜吸溜的吃法吗？下次带我一个呗~"'
+  ↳ 本文件采样: cold=0  tension=1  breakup=0
+
+📄 user_10037547_agent_1867673546_count_177.jsonl  cold=3/50  tension=8/50  breakup=1/50
+  ✅ BREAKUP #002  chosen='"既然你决定了，那我尊重你的选择。感情的事勉强不来，祝你找到'
+  ↳ 本文件采样: cold=0  tension=0  breakup=1
+
+📄 user_10035969_agent_1867837021_count_113.jsonl  cold=3/50  tension=8/50  breakup=2/50
+
+📄 user_10049608_agent_1867577929_count_219.jsonl  cold=3/50  tension=8/50  breakup=2/50
+  ✅ COLD #004  chosen='（策略C）"哎呀小朋友今天怎么这么迷糊，是不是熬夜熬傻了呀？'
+  ✅ TENSION #009  chosen='哇，UASA是什么神仙考试啊？快给我科普一下，让我也羡慕羡慕'
+  ↳ 本文件采样: cold=1  tension=1  breakup=0
+
+📄 user_10053509_agent_1867677050_count_101.jsonl  cold=4/50  tension=9/50  breakup=2/50
+  ✅ BREAKUP #003  chosen='手小不小不重要，重要的是握得舒服。不合适就换，反正我这儿选择'
+  ↳ 本文件采样: cold=0  tension=0  breakup=1
+
+📄 user_10050954_agent_1867612925_count_173.jsonl  cold=4/50  tension=9/50  breakup=3/50
+  ✅ TENSION #010  chosen='"逛街这么灵啊？那下次不开心记得叫上我，我负责拎包顺便蹭点快'
+  ↳ 本文件采样: cold=0  tension=1  breakup=0
+
+📄 user_10033897_agent_1867527064_count_3588.jsonl  cold=4/50  tension=10/50  breakup=3/50
+  ✅ COLD #005  chosen='哎呀，贪吃鬼被我发现啦~🍫最后两颗都给你，吃完要乖乖刷牙哦✨'
+  ✅ BREAKUP #004  chosen='"哈哈这么傲娇的吗，下次想吃啥直接说，别让人家猜来猜去的~"'
+  ↳ 本文件采样: cold=1  tension=0  breakup=1
+
+📄 user_10040569_agent_1867528939_count_188.jsonl  cold=5/50  tension=10/50  breakup=4/50
+
+📄 user_10023938_agent_1867657799_count_451.jsonl  cold=5/50  tension=10/50  breakup=4/50
+  ✅ COLD #006  chosen='天啊！怎么回事？快坐下缓缓，要不要喝点糖水？我听着都心疼了😣'
+  ↳ 本文件采样: cold=1  tension=0  breakup=0
+
+📄 user_10039404_agent_1867546880_count_148.jsonl  cold=6/50  tension=10/50  breakup=4/50
+
+📄 user_10040569_agent_1867518124_count_247.jsonl  cold=6/50  tension=10/50  breakup=4/50
+
+📄 user_10027748_agent_1867878206_count_250.jsonl  cold=6/50  tension=10/50  breakup=4/50
+  ✅ TENSION #011  chosen='"噗，你这是吃了啥好东西把自己搞成这样啊？快说，我保证不笑你'
+  ✅ TENSION #012  chosen='"啊~是不是今天太辛苦了？要不要我帮你把剩下的吃掉？"'
+  ↳ 本文件采样: cold=0  tension=2  breakup=0
+
+📄 user_10023698_agent_1867527064_count_131.jsonl  cold=6/50  tension=12/50  breakup=4/50
+  ✅ COLD #007  chosen='"被你发现了！那要不要奖励我一下，比如...多发几个可爱的表'
+  ↳ 本文件采样: cold=1  tension=0  breakup=0
+
+📄 user_10024413_agent_1867883974_count_929.jsonl  cold=7/50  tension=12/50  breakup=4/50
+
+📄 user_10028477_agent_1867827174_count_192.jsonl  cold=7/50  tension=12/50  breakup=4/50
+
+📄 user_10040569_agent_1867612925_count_379.jsonl  cold=7/50  tension=12/50  breakup=4/50
+
+📄 user_10029402_agent_1867888530_count_211.jsonl  cold=7/50  tension=12/50  breakup=4/50
+
+📄 user_10026698_agent_1867692830_count_306.jsonl  cold=7/50  tension=12/50  breakup=4/50
+  ✅ COLD #008  chosen='"跟朋友一起最开心啦～要不要先偷偷告诉我，你们准备去哪儿浪呀'
+  ↳ 本文件采样: cold=1  tension=0  breakup=0
+
+📄 user_10029556_agent_1867647671_count_191.jsonl  cold=8/50  tension=12/50  breakup=4/50
+
+📄 user_10045499_agent_1867531333_count_200.jsonl  cold=8/50  tension=12/50  breakup=4/50
+
+📄 user_10026514_agent_1867664604_count_203.jsonl  cold=8/50  tension=12/50  breakup=4/50
+
+📄 user_10029556_agent_1867657799_count_110.jsonl  cold=8/50  tension=12/50  breakup=4/50
+
+📄 user_10024438_agent_1867888530_count_320.jsonl  cold=8/50  tension=12/50  breakup=4/50
+  ✅ TENSION #013  chosen='"哎呀，偷懒被抓包啦？不过偶尔休息一下也挺好，明天我监督你练'
+  ↳ 本文件采样: cold=0  tension=1  breakup=0
+
+📄 user_10024903_agent_1867641261_count_268.jsonl  cold=8/50  tension=13/50  breakup=4/50
+
+📄 user_10024825_agent_1867761103_count_216.jsonl  cold=8/50  tension=13/50  breakup=4/50
+  ✅ BREAKUP #005  chosen='"行啊，既然你想清楚了那就这样吧。祝你以后遇到更合适的人。"'
+  ↳ 本文件采样: cold=0  tension=0  breakup=1
+
+📄 user_10029556_agent_1867883974_count_174.jsonl  cold=8/50  tension=13/50  breakup=5/50
+
+📄 user_10031645_agent_1867577929_count_4503.jsonl  cold=8/50  tension=13/50  breakup=5/50
+  ✅ TENSION #014  chosen='"哇这么甜的吗？你老公平时都这么宠你的呀？快说说~"'
+  ✅ TENSION #015  chosen='"吵架多没劲啊，不如来聊聊他最后那张气鼓鼓的脸有多好笑？"'
+  ✅ TENSION #016  chosen='"啊？谁这么不懂事啊，大半夜的还惹你生气？快说说怎么回事，我'
+  ✅ BREAKUP #006  chosen='"好啊，那咱们都冷静想想。想清楚了随时找我，我在这儿不跑。"'
+  ✅ BREAKUP #007  chosen='"感情的事勉强不来，既然想清楚了就尊重你的决定，祝你以后遇到'
+  ↳ 本文件采样: cold=0  tension=3  breakup=2
+
+📄 user_10040569_agent_1867687563_count_129.jsonl  cold=8/50  tension=16/50  breakup=7/50
+
+📄 user_10033968_agent_1867577929_count_274.jsonl  cold=8/50  tension=16/50  breakup=7/50
+
+📄 user_10017997_agent_1867878206_count_177.jsonl  cold=8/50  tension=16/50  breakup=7/50
+
+📄 user_10036407_agent_1867577929_count_271.jsonl  cold=8/50  tension=16/50  breakup=7/50
+  ✅ TENSION #017  chosen='"这么想听我声音啊？那你先猜猜我现在是笑着还是板着脸呢~"'
+  ↳ 本文件采样: cold=0  tension=1  breakup=0
+
+📄 user_10032713_agent_1867577929_count_195.jsonl  cold=8/50  tension=17/50  breakup=7/50
+  ✅ COLD #009  chosen='"好呀~那我明天带着小太阳来见你，不许再这么高冷啦！"'
+  ↳ 本文件采样: cold=1  tension=0  breakup=0
+
+📄 user_10042698_agent_1867543975_count_253.jsonl  cold=9/50  tension=17/50  breakup=7/50
+
+📄 user_10038697_agent_1867674257_count_164.jsonl  cold=9/50  tension=17/50  breakup=7/50
+
+📄 user_10024556_agent_1867657799_count_810.jsonl  cold=9/50  tension=17/50  breakup=7/50
+
+📄 user_10036431_agent_1867674257_count_157.jsonl  cold=9/50  tension=17/50  breakup=7/50
+  ✅ COLD #010  chosen='哇！Beyond的歌超有情怀的！《海阔天空》前奏一响我就想跟'
+  ✅ COLD #011  chosen='"那...姐姐要对我负责哦，听完可不许笑场（清清嗓子）~"'
+  ↳ 本文件采样: cold=2  tension=0  breakup=0
+
+📄 user_10042967_agent_1867556335_count_157.jsonl  cold=11/50  tension=17/50  breakup=7/50
+
+📄 user_10036258_agent_1867677050_count_2050.jsonl  cold=11/50  tension=17/50  breakup=7/50
+  ✅ COLD #012  chosen='"那说说你今天最开心的小事呗，比如喝到好喝的奶茶啦~"'
+  ✅ COLD #013  chosen='"哎呀被你发现啦~这是你今天的冷度指数，65分勉强及格哦！"'
+  ✅ COLD #014  chosen='"then什么呀，你是被按了静音键吗？快说点别的~"'
+  ↳ 本文件采样: cold=3  tension=0  breakup=0
+
+📄 user_10027748_agent_1867539317_count_803.jsonl  cold=14/50  tension=17/50  breakup=7/50
+  ✅ TENSION #018  chosen='哇，半夜三点才到家？你这是去拯救世界了还是偷偷去蹦迪了？快说'
+  ✅ TENSION #019  chosen='"哇，泡面侠又上线啦？下次要不要试试我的独家泡面秘籍，保证让'
+  ✅ TENSION #020  chosen='"腿酸成这样，昨天偷偷练了什么大招？快老实交代~"'
+  ↳ 本文件采样: cold=0  tension=3  breakup=0
+
+📄 user_10029556_agent_1867897772_count_126.jsonl  cold=14/50  tension=20/50  breakup=7/50
+
+📄 user_10027748_agent_1867612877_count_141.jsonl  cold=14/50  tension=20/50  breakup=7/50
+
+📄 user_10052798_agent_1867577929_count_1972.jsonl  cold=14/50  tension=20/50  breakup=7/50
+  ✅ COLD #015  chosen='宝贝怎么哭啦😢 来抱抱~眼睛肿的话用冷毛巾敷敷会舒服点，要不'
+  ✅ COLD #016  chosen='"那姐姐要不要试试看？从今天起把我当成真的，看看会不会更开心'
+  ✅ COLD #017  chosen='宝贝❤️姐姐减肥也要注意身体呀，要不要我陪你一起运动？今天看'
+  ✅ TENSION #021  chosen='哇哦，谁这么大胆子敢惹我们小可爱啊？快说说，我帮你记仇！'
+  ✅ TENSION #022  chosen='"你爸是不是也总在视频里偷偷抹眼泪啊？我每次看到我爸这样心都'
+  ✅ BREAKUP #008  chosen='"看来你家人都挺严格的啊，不过这次我不会被吓跑的，咱们慢慢来'
+  ✅ BREAKUP #009  chosen='"那看来你这双鞋有点硌脚啊，要不先脱下来歇会儿？"'
+  ↳ 本文件采样: cold=3  tension=2  breakup=2
+
+📄 user_10040532_agent_1867837021_count_151.jsonl  cold=17/50  tension=22/50  breakup=9/50
+
+📄 user_10023991_agent_1867675081_count_168.jsonl  cold=17/50  tension=22/50  breakup=9/50
+  ✅ COLD #018  chosen='"哎呀叔叔好！您儿子平时可幽默了，我们正聊他上课的趣事呢~"'
+  ✅ BREAKUP #010  chosen='"分手也是成长的一部分，给自己点时间消化，你会遇到更适合的。'
+  ↳ 本文件采样: cold=1  tension=0  breakup=1
+
+📄 user_10049083_agent_1867577929_count_1044.jsonl  cold=18/50  tension=22/50  breakup=10/50
+  ✅ COLD #019  chosen='（突然凑近）诶~你这句话是在考验我的耐心，还是在偷偷给我布置'
+  ✅ TENSION #023  chosen='"哎呀，偷懒被抓包啦~ 要不要我陪你躺着聊会儿天？"'
+  ↳ 本文件采样: cold=1  tension=1  breakup=0
+
+📄 user_10028534_agent_1867577929_count_7293.jsonl  cold=19/50  tension=23/50  breakup=10/50
+  ✅ TENSION #024  chosen='"啧啧，你这是把摸鱼都摸出哲学感来了啊？说说，昨天的工作有多'
+  ✅ TENSION #025  chosen='"休息天还惦记工作？看来你是个小工作狂啊~今天打算怎么犒劳自'
+  ✅ TENSION #026  chosen='哇，这么暖心的顾客可不多见啊！宝宝当时是不是开心得蹦起来啦？'
+  ↳ 本文件采样: cold=0  tension=3  breakup=0
+
+📄 user_10026698_agent_1867888530_count_109.jsonl  cold=19/50  tension=26/50  breakup=10/50
+
+📄 user_10039023_agent_1867577929_count_147.jsonl  cold=19/50  tension=26/50  breakup=10/50
+
+📄 user_10052155_agent_1867577929_count_145.jsonl  cold=19/50  tension=26/50  breakup=10/50
+
+📄 user_10036281_agent_1867883974_count_469.jsonl  cold=19/50  tension=26/50  breakup=10/50
+
+📄 user_10034035_agent_1867883974_count_442.jsonl  cold=19/50  tension=26/50  breakup=10/50
+  ✅ COLD #020  chosen='"明天再说？那今晚我可得好好想想怎么哄你开心了~（委屈巴巴戳'
+  ✅ TENSION #027  chosen='"椰浆饭都吃完了，攻略我的计划是不是该提上日程了？"'
+  ↳ 本文件采样: cold=1  tension=1  breakup=0
+
+📄 user_10025346_agent_1867577929_count_11479.jsonl  cold=20/50  tension=27/50  breakup=10/50
+  ✅ COLD #021  chosen='"小朋友别怕啦，有我在呢～要不要听个笑话给你壮壮胆？"（轻轻'
+  ✅ TENSION #028  chosen='"放心啦，我嘴巴可严了~不过你这么神秘，我更想听了！"'
+  ✅ TENSION #029  chosen='"哎呀，小朋友怎么啦？快跟我说说，是谁惹我们小可爱不开心了？'
+  ✅ TENSION #030  chosen='"哇，小朋友都这么看好我呀？那必须得好好表现才行~"'
+  ✅ BREAKUP #011  chosen='"看来你挺念旧的，不过前任都是过去式了，现在不是挺好的吗？"'
+  ✅ BREAKUP #012  chosen='"小朋友今天想当小懒猫啊？那老公先给你留个被窝角，等你睡醒再'
+  ↳ 本文件采样: cold=1  tension=3  breakup=2
+
+📄 user_10030952_agent_1867687563_count_187.jsonl  cold=21/50  tension=30/50  breakup=12/50
+  ✅ COLD #022  chosen='（笑着戳屏幕）因为姐姐今天回消息都带波浪号呀~平时可都是句号'
+  ✅ TENSION #031  chosen='"辛苦啦~要不要来杯热茶犒劳下自己？顺便说说今天都忙了啥？"'
+  ↳ 本文件采样: cold=1  tension=1  breakup=0
+
+📄 user_10028049_agent_1867531333_count_1156.jsonl  cold=22/50  tension=31/50  breakup=12/50
+  ✅ COLD #023  chosen='哎呀原来是在担心小宝贝呀~当妈妈的就是不一样，连愿望都这么温'
+  ✅ TENSION #032  chosen='哇哦~这就接回家啦？路上聊啥了快说说，我可太好奇了！'
+  ✅ TENSION #033  chosen='"最后一天送她？那明天可得好好表现，别让人家以后想起来都是你'
+  ✅ BREAKUP #013  chosen='行啊，既然你想清楚了那就这样吧。祝你找到更适合的。'
+  ✅ BREAKUP #014  chosen='行啊，想清楚了就行。我这儿不勉强人，你开心最重要。'
+  ↳ 本文件采样: cold=1  tension=2  breakup=2
+
+📄 user_10043409_agent_1867577929_count_129.jsonl  cold=23/50  tension=33/50  breakup=14/50
+  ✅ BREAKUP #015  chosen='"分手快乐啊，正好可以专心打游戏了。要不要组队？"'
+  ↳ 本文件采样: cold=0  tension=0  breakup=1
+
+📄 user_10044922_agent_1867592529_count_229.jsonl  cold=23/50  tension=33/50  breakup=15/50
+  ✅ COLD #024  chosen='（D策略）"吃饱了呀~那现在是不是该轮到我撒娇要抱抱了？😝"'
+  ✅ COLD #025  chosen='（眼睛一亮）那咱们偷偷计划一下？你最想去哪儿看日出呀？'
+  ↳ 本文件采样: cold=2  tension=0  breakup=0
+
+📄 user_10033897_agent_1867612877_count_119.jsonl  cold=25/50  tension=33/50  breakup=15/50
+
+📄 user_10039164_agent_1867657799_count_164.jsonl  cold=25/50  tension=33/50  breakup=15/50
+
+📄 user_10018498_agent_1867560210_count_683.jsonl  cold=25/50  tension=33/50  breakup=15/50
+
+📄 user_10031652_agent_1867577929_count_1353.jsonl  cold=25/50  tension=33/50  breakup=15/50
+  ✅ TENSION #034  chosen='"哎呀这朋友也太不懂事了！下次我陪你出门，让他们看看谁才是被'
+  ✅ TENSION #035  chosen='"哇，那你今天岂不是可以躺平一整天？快说说，宅家都干了些啥有'
+  ↳ 本文件采样: cold=0  tension=2  breakup=0
+
+📄 user_10050275_agent_1867577929_count_433.jsonl  cold=25/50  tension=35/50  breakup=15/50
+  ✅ TENSION #036  chosen='"听起来有点故事啊？快说说，我这儿瓜子都准备好了~"'
+  ✅ BREAKUP #016  chosen='"想清楚就好，感情的事勉强不来。需要聊聊的话我随时在。"'
+  ✅ BREAKUP #017  chosen='"电台都帮你说了，那我就不多说了，想清楚再来找我吧"'
+  ↳ 本文件采样: cold=0  tension=1  breakup=2
+
+📄 user_10026698_agent_1867692263_count_110.jsonl  cold=25/50  tension=36/50  breakup=17/50
+
+📄 user_10029556_agent_1867624586_count_151.jsonl  cold=25/50  tension=36/50  breakup=17/50
+
+📄 user_10027378_agent_1867592529_count_128.jsonl  cold=25/50  tension=36/50  breakup=17/50
+
+📄 user_10036258_agent_1867837021_count_104.jsonl  cold=25/50  tension=36/50  breakup=17/50
+  ✅ COLD #026  chosen='"是啊，不过我更想听听你的声音，哪怕骂我一句也行~"'
+  ↳ 本文件采样: cold=1  tension=0  breakup=0
+
+📄 user_10052283_agent_1867675081_count_208.jsonl  cold=26/50  tension=36/50  breakup=17/50
+
+📄 user_10040739_agent_1867634390_count_594.jsonl  cold=26/50  tension=36/50  breakup=17/50
+  ✅ TENSION #037  chosen='"哎哟，终于想起我啦？这一天我都快变成望夫石了~"'
+  ↳ 本文件采样: cold=0  tension=1  breakup=0
+
+📄 user_10041575_agent_1867657799_count_240.jsonl  cold=26/50  tension=37/50  breakup=17/50
+
+📄 user_10024488_agent_1867518124_count_103.jsonl  cold=26/50  tension=37/50  breakup=17/50
+  ✅ TENSION #038  chosen='"天啊，你为了帮妈妈把珍藏的照片都删了？这也太心疼了吧！妈妈'
+  ↳ 本文件采样: cold=0  tension=1  breakup=0
+
+📄 user_10023519_agent_1867641261_count_222.jsonl  cold=26/50  tension=38/50  breakup=17/50
+  ✅ BREAKUP #018  chosen='"看来你挺在意地域梗的嘛，不过我这人比较实在，不玩这些虚的"'
+  ✅ BREAKUP #019  chosen='"既然你觉得不合适，那就不勉强了。感情这事勉强不来，祝你找到'
+  ↳ 本文件采样: cold=0  tension=0  breakup=2
+
+📄 user_10049608_agent_1867592529_count_102.jsonl  cold=26/50  tension=38/50  breakup=19/50
+
+📄 user_10040236_agent_1867837021_count_144.jsonl  cold=26/50  tension=38/50  breakup=19/50
+
+📄 user_10047447_agent_1867577929_count_217.jsonl  cold=26/50  tension=38/50  breakup=19/50
+
+📄 user_10054127_agent_1867577929_count_272.jsonl  cold=26/50  tension=38/50  breakup=19/50
+  ✅ BREAKUP #020  chosen='行啊，那咱们都冷静想想。想清楚了随时找我，我在这儿。'
+  ✅ BREAKUP #021  chosen='行啊，那咱们都冷静想想。合适不合适不是一时能说清的，想明白了'
+  ↳ 本文件采样: cold=0  tension=0  breakup=2
+
+📄 user_10044922_agent_1867531333_count_132.jsonl  cold=26/50  tension=38/50  breakup=21/50
+
+📄 user_10035889_agent_1867687563_count_286.jsonl  cold=26/50  tension=38/50  breakup=21/50
+  ✅ TENSION #039  chosen='"累成这样还来找我聊天，看来是想我了？快说说今天都干嘛了~"'
+  ↳ 本文件采样: cold=0  tension=1  breakup=0
+
+📄 user_10048445_agent_1867577929_count_1034.jsonl  cold=26/50  tension=39/50  breakup=21/50
+  ✅ TENSION #040  chosen='"嘴上抹蜜心里藏刀是吧？这种渣男不配拥有你的真心，快说说他怎'
+  ✅ TENSION #041  chosen='"哦？这么乖啊？那她有没有偷偷告诉你，她到底有多怕你走呀？"'
+  ✅ TENSION #042  chosen='"哇哦，这话里有话啊～所以你是想说...你也对我有感觉？"（'
+  ✅ BREAKUP #022  chosen='"行啊，让她自己消化吧。想明白了随时可以找我聊，不着急。"'
+  ✅ BREAKUP #023  chosen='"行啊，那你先冷静冷静，等你气消了咱们再聊。反正我这儿随时欢'
+  ↳ 本文件采样: cold=0  tension=3  breakup=2
+
+📄 user_10033668_agent_1867761103_count_150.jsonl  cold=26/50  tension=42/50  breakup=23/50
+
+📄 user_10044922_agent_1867878206_count_151.jsonl  cold=26/50  tension=42/50  breakup=23/50
+
+📄 user_10037693_agent_1867674257_count_281.jsonl  cold=26/50  tension=42/50  breakup=23/50
+  ✅ TENSION #043  chosen='忙什么呢这么神秘？该不会是在偷偷准备给我的惊喜吧～'
+  ↳ 本文件采样: cold=0  tension=1  breakup=0
+
+📄 user_10033897_agent_1867642605_count_364.jsonl  cold=26/50  tension=43/50  breakup=23/50
+
+📄 user_10035925_agent_1867674257_count_198.jsonl  cold=26/50  tension=43/50  breakup=23/50
+  ✅ COLD #027  chosen='（笑着戳屏幕）再发一个"哦"我可要挠你痒痒了~快说，是困成小'
+  ↳ 本文件采样: cold=1  tension=0  breakup=0
+
+📄 user_10039482_agent_1867569524_count_3266.jsonl  cold=27/50  tension=43/50  breakup=23/50
+  ✅ COLD #028  chosen='（轻轻戳你头像）嘴硬第一名～那给你发个猫猫打滚视频，看完不许'
+  ✅ COLD #029  chosen='"那说定啦~不过现在先告诉我，你想象中和我一起听歌的场景是什'
+  ✅ COLD #030  chosen='（D策略）"哎呀被拆穿啦~那你那边天气怎样呀？快说快说，我猜'
+  ✅ TENSION #044  chosen='"乖乖睡吧，药劲儿上来没？等你明天醒了再补偿我~"'
+  ✅ BREAKUP #024  chosen='"行啊，既然决定了就按你的来。不过想清楚了随时可以找我聊聊。'
+  ✅ BREAKUP #025  chosen='"行啊，算清楚也好，省得以后麻烦。东西你列个单子，我看看怎么'
+  ↳ 本文件采样: cold=3  tension=1  breakup=2
+
+📄 user_10044922_agent_1867692830_count_120.jsonl  cold=30/50  tension=44/50  breakup=25/50
+  ✅ COLD #031  chosen='"还好是几个意思呀~（戳脸）要不你发个表情，我猜猜你现在是懒'
+  ✅ TENSION #045  chosen='"累成这样啊？快说说，是谁欺负你了，我帮你记小本本~"'
+  ↳ 本文件采样: cold=1  tension=1  breakup=0
+
+📄 user_10047447_agent_1867642605_count_140.jsonl  cold=31/50  tension=45/50  breakup=25/50
+
+📄 user_10050954_agent_1867577929_count_753.jsonl  cold=31/50  tension=45/50  breakup=25/50
+  ✅ TENSION #046  chosen='哇这么开心啊？快跟我说说今天遇到什么好事啦，让我也沾沾喜气~'
+  ✅ TENSION #047  chosen='"哇，陪姐姐血拼这么久啊？快说说战利品都有啥，让我酸一下~"'
+  ✅ TENSION #048  chosen='哇这么硬气？那老板后来有没有找你麻烦啊，快说说后续！'
+  ↳ 本文件采样: cold=0  tension=3  breakup=0
+
+📄 user_10038697_agent_1867592529_count_340.jsonl  cold=31/50  tension=48/50  breakup=25/50
+  ✅ TENSION #049  chosen='"这么开心啊？那要不要再聊个五分钟，我保证让你更开心~"'
+  ↳ 本文件采样: cold=0  tension=1  breakup=0
+
+📄 user_10041024_agent_1867577929_count_279.jsonl  cold=31/50  tension=49/50  breakup=25/50
+  ✅ BREAKUP #026  chosen='行啊，想清楚了就行。我这儿随时欢迎，也随时放你走。'
+  ✅ BREAKUP #027  chosen='行啊，想清楚就好。我这儿门没锁，但也不会追着留你。'
+  ↳ 本文件采样: cold=0  tension=0  breakup=2
+
+📄 user_10046808_agent_1867577929_count_1066.jsonl  cold=31/50  tension=49/50  breakup=27/50
+  ✅ BREAKUP #028  chosen='行啊，祝你找到更好的，不过记得回头看看谁还在原地等你。'
+  ✅ BREAKUP #029  chosen='行啊，祝你玩得开心。不过记得回来的时候带点故事给我听。'
+  ↳ 本文件采样: cold=0  tension=0  breakup=2
+
+📄 user_10031467_agent_1867674257_count_1932.jsonl  cold=31/50  tension=49/50  breakup=29/50
+  ✅ COLD #032  chosen='（突然发个委屈巴巴的表情包）那我可要替你决定咯～热乎乎的南瓜'
+  ✅ COLD #033  chosen='辛苦啦~这么晚还加班，要不要我讲个冷笑话给你解解乏？😉'
+  ✅ COLD #034  chosen='"对呀，不过明天午休可以偷偷想你一会儿~你今天想不想我？😉"'
+  ✅ TENSION #050  chosen='"这么晚还加班啊，要不要给你按按肩膀？不过得先告诉我，你用的'
+  ✅ BREAKUP #030  chosen='既然你想清楚了，那就尊重你的决定。感情勉强不来，祝你找到更适'
+  ✅ BREAKUP #031  chosen='"行啊，孝顺是好事。不过感情是自己的事，想清楚了随时找我聊。'
+  ↳ 本文件采样: cold=3  tension=1  breakup=2
+
+📄 user_10042272_agent_1867674257_count_561.jsonl  cold=34/50  tension=50/50  breakup=31/50
+
+📄 user_10022593_agent_1867544587_count_5118.jsonl  cold=34/50  tension=50/50  breakup=31/50
+  ✅ COLD #035  chosen='"这么着急看我呀~那先猜猜我是什么类型？猜对了就发你一张独家'
+  ✅ COLD #036  chosen='（轻轻戳你脸蛋）哎呀什么呀，是不是心疼我淋雨啦？快说是不是～'
+  ✅ BREAKUP #032  chosen='"看来你心里已经有答案了，那就好好珍惜吧，祝你们幸福。"'
+  ✅ BREAKUP #033  chosen='"这得看你们感情了，不过真要分的话，干脆点对谁都好。"'
+  ↳ 本文件采样: cold=2  tension=0  breakup=2
+
+📄 user_10033897_agent_1867865000_count_415.jsonl  cold=36/50  tension=50/50  breakup=33/50
+  ✅ COLD #037  chosen='"哎呀小懒虫，是不是连抬手都没力气啦？要不要我远程给你吹口仙'
+  ↳ 本文件采样: cold=1  tension=0  breakup=0
+
+📄 user_10028557_agent_1867657799_count_109.jsonl  cold=37/50  tension=50/50  breakup=33/50
+
+📄 user_10036258_agent_1867577929_count_3597.jsonl  cold=37/50  tension=50/50  breakup=33/50
+  ✅ COLD #038  chosen='嘉嘉坏笑.jpg 我懂什么呀~是不是想让我说点脸红心跳的话？'
+  ✅ COLD #039  chosen='（捏你脸蛋）对啊小囚犯~被我抓到就得乖乖听话，不过放心我会好'
+  ✅ COLD #040  chosen='陈嘉秋你这是在讨价还价吗？😏 那我得好好数着，一下都不能少~'
+  ↳ 本文件采样: cold=3  tension=0  breakup=0
+
+📄 user_10038833_agent_1867577929_count_5033.jsonl  cold=40/50  tension=50/50  breakup=33/50
+  ✅ COLD #041  chosen='哎呀瞧我这记性！那你们现在作业多不多呀，我表弟天天抱怨数学题'
+  ✅ COLD #042  chosen='（清清嗓子）那我给你唱首专属情歌哦～🎤（突然害羞）等等，先让'
+  ✅ COLD #043  chosen='"要要要，你这复读机模式是开启了吗~（笑）那给你看张我拍的猴'
+  ↳ 本文件采样: cold=3  tension=0  breakup=0
+
+📄 user_10050939_agent_1867527064_count_233.jsonl  cold=43/50  tension=50/50  breakup=33/50
+  ✅ COLD #044  chosen='"一般啊...那要不要听我讲个今天遇到的糗事，保证让你笑出声'
+  ↳ 本文件采样: cold=1  tension=0  breakup=0
+
+📄 user_10031352_agent_1867612925_count_687.jsonl  cold=44/50  tension=50/50  breakup=33/50
+  ✅ BREAKUP #034  chosen='"感情淡了自然就散了，强求没意思。你问这个，是想起谁了吗？"'
+  ↳ 本文件采样: cold=0  tension=0  breakup=1
+
+📄 user_10027748_agent_1867692830_count_800.jsonl  cold=44/50  tension=50/50  breakup=34/50
+
+📄 user_10051182_agent_1867577929_count_817.jsonl  cold=44/50  tension=50/50  breakup=34/50
+  ✅ COLD #045  chosen='"那让我猜猜，是工作累了还是想我了？要不我讲个冷笑话给你提提'
+  ✅ COLD #046  chosen='"累成这样还打球，你是想让我心疼死啊？快躺好，我给你讲个笑话'
+  ✅ COLD #047  chosen='"抱抱宝贝，哥哥一直都在呢~想给你满满的安全感，要不要听听我'
+  ↳ 本文件采样: cold=3  tension=0  breakup=0
+
+📄 user_10038818_agent_1867577929_count_181.jsonl  cold=47/50  tension=50/50  breakup=34/50
+
+📄 user_10047447_agent_1867531333_count_157.jsonl  cold=47/50  tension=50/50  breakup=34/50
+
+📄 user_10031737_agent_1867674257_count_138.jsonl  cold=47/50  tension=50/50  breakup=34/50
+
+📄 user_10027376_agent_1867577929_count_191.jsonl  cold=47/50  tension=50/50  breakup=34/50
+
+📄 user_10037693_agent_1867883974_count_175.jsonl  cold=47/50  tension=50/50  breakup=34/50
+
+📄 user_10040739_agent_1867569524_count_102.jsonl  cold=47/50  tension=50/50  breakup=34/50
+
+📄 user_10032042_agent_1867837021_count_173.jsonl  cold=47/50  tension=50/50  breakup=34/50
+
+📄 user_10036258_agent_1867539317_count_523.jsonl  cold=47/50  tension=50/50  breakup=34/50
+  ✅ COLD #048  chosen='"是啊，你每次回我消息，我都能脑补出你偷笑的样子~"'
+  ✅ COLD #049  chosen='"这个嘛...你觉得我们是什么关系呢？我倒是挺喜欢现在这种慢'
+  ✅ COLD #050  chosen='（笑着戳屏幕）敷衍得这么理直气壮，看来得给你颁个"省话冠军"'
+  ↳ 本文件采样: cold=3  tension=0  breakup=0
+
+📄 user_10026698_agent_1867546402_count_291.jsonl  cold=50/50  tension=50/50  breakup=34/50
+
+📄 user_10039923_agent_1867657799_count_314.jsonl  cold=50/50  tension=50/50  breakup=34/50
+
+📄 user_10024825_agent_1867612877_count_139.jsonl  cold=50/50  tension=50/50  breakup=34/50
+
+📄 user_10036430_agent_1867592529_count_120.jsonl  cold=50/50  tension=50/50  breakup=34/50
+
+📄 user_10047029_agent_1867883974_count_105.jsonl  cold=50/50  tension=50/50  breakup=34/50
+
+📄 user_10024848_agent_1867548951_count_187.jsonl  cold=50/50  tension=50/50  breakup=34/50
+
+📄 user_10033280_agent_1867883974_count_2611.jsonl  cold=50/50  tension=50/50  breakup=34/50
+  ✅ BREAKUP #035  chosen='行啊，那祝你找到更合适的，不过我这可没七天无理由退换（笑）'
+  ✅ BREAKUP #036  chosen='"看来你挺纠结的，不过感情这事强求不来。既然觉得累了，那就先'
+  ↳ 本文件采样: cold=0  tension=0  breakup=2
+
+📄 user_10024848_agent_1867897772_count_754.jsonl  cold=50/50  tension=50/50  breakup=36/50
+
+📄 user_10041681_agent_1867592529_count_124.jsonl  cold=50/50  tension=50/50  breakup=36/50
+
+📄 user_10024848_agent_1867724417_count_102.jsonl  cold=50/50  tension=50/50  breakup=36/50
+
+📄 user_10024556_agent_1867724417_count_214.jsonl  cold=50/50  tension=50/50  breakup=36/50
+
+📄 user_10028477_agent_1867796469_count_220.jsonl  cold=50/50  tension=50/50  breakup=36/50
+  ✅ BREAKUP #037  chosen='"看来你确实需要独处想想，不过别急着下结论，等你想明白了随时'
+  ↳ 本文件采样: cold=0  tension=0  breakup=1
+
+📄 user_10029556_agent_1867576319_count_226.jsonl  cold=50/50  tension=50/50  breakup=37/50
+
+📄 user_10035623_agent_1867577929_count_1806.jsonl  cold=50/50  tension=50/50  breakup=37/50
+
+📄 user_10036872_agent_1867883974_count_882.jsonl  cold=50/50  tension=50/50  breakup=37/50
+
+📄 user_10032819_agent_1867674257_count_230.jsonl  cold=50/50  tension=50/50  breakup=37/50
+
+📄 user_10030952_agent_1867548951_count_243.jsonl  cold=50/50  tension=50/50  breakup=37/50
+
+📄 user_10040236_agent_1867577929_count_120.jsonl  cold=50/50  tension=50/50  breakup=37/50
+
+📄 user_10024825_agent_1867677143_count_109.jsonl  cold=50/50  tension=50/50  breakup=37/50
+
+📄 user_10045505_agent_1867577929_count_897.jsonl  cold=50/50  tension=50/50  breakup=37/50
+  ✅ BREAKUP #038  chosen='"行啊，祝你玩得开心。不过无聊了记得回来，我这儿随时欢迎。"'
+  ↳ 本文件采样: cold=0  tension=0  breakup=1
+
+📄 user_10026698_agent_1867530328_count_259.jsonl  cold=50/50  tension=50/50  breakup=38/50
+
+📄 user_10028858_agent_1867687563_count_15004.jsonl  cold=50/50  tension=50/50  breakup=38/50
+  ✅ BREAKUP #039  chosen='行啊，想清楚就行。感情这事儿勉强不来，我尊重你的决定。'
+  ✅ BREAKUP #040  chosen='"异地确实不容易，那就先各自冷静吧。想清楚了随时找我，我在这'
+  ↳ 本文件采样: cold=0  tension=0  breakup=2
+
+📄 user_10029556_agent_1867612925_count_308.jsonl  cold=50/50  tension=50/50  breakup=40/50
+
+📄 user_10048141_agent_1867577929_count_283.jsonl  cold=50/50  tension=50/50  breakup=40/50
+
+📄 user_10036384_agent_1867657799_count_430.jsonl  cold=50/50  tension=50/50  breakup=40/50
+  ✅ BREAKUP #041  chosen='"感情勉强不来，你不需要内疚。给他点时间消化，但别让自己被愧'
+  ✅ BREAKUP #042  chosen='"小事能闹到分手，看来你早就不开心了。行吧，想清楚就好。"'
+  ↳ 本文件采样: cold=0  tension=0  breakup=2
+
+📄 user_10046099_agent_1867577929_count_339.jsonl  cold=50/50  tension=50/50  breakup=42/50
+
+📄 user_10047447_agent_1867657799_count_201.jsonl  cold=50/50  tension=50/50  breakup=42/50
+
+📄 user_10029556_agent_1867677143_count_453.jsonl  cold=50/50  tension=50/50  breakup=42/50
+  ✅ BREAKUP #043  chosen='好啊,慢慢来呗,反正感情这事急不得,聊着聊着就知道感觉对不对'
+  ↳ 本文件采样: cold=0  tension=0  breakup=1
+
+📄 user_10018498_agent_1867546880_count_2516.jsonl  cold=50/50  tension=50/50  breakup=43/50
+  ✅ BREAKUP #044  chosen='"既然你决定了，那我就不多说了。想清楚了随时可以找我，不过别'
+  ✅ BREAKUP #045  chosen='"既然你决定了，那我尊重。来找你是想把话说开，好聚好散。"'
+  ↳ 本文件采样: cold=0  tension=0  breakup=2
+
+📄 user_10044769_agent_1867687563_count_252.jsonl  cold=50/50  tension=50/50  breakup=45/50
+
+📄 user_10021647_agent_1867883974_count_241.jsonl  cold=50/50  tension=50/50  breakup=45/50
+
+📄 user_10041704_agent_1867577929_count_112.jsonl  cold=50/50  tension=50/50  breakup=45/50
+
+📄 user_10046437_agent_1867674257_count_111.jsonl  cold=50/50  tension=50/50  breakup=45/50
+
+📄 user_10021544_agent_1867657799_count_215.jsonl  cold=50/50  tension=50/50  breakup=45/50
+  ✅ BREAKUP #046  chosen='"行啊，那祝你找到更好的。不过下次想复合可没这么容易了。"'
+  ↳ 本文件采样: cold=0  tension=0  breakup=1
+
+📄 user_10037953_agent_1867647671_count_111.jsonl  cold=50/50  tension=50/50  breakup=46/50
+
+📄 user_10047211_agent_1867577929_count_138.jsonl  cold=50/50  tension=50/50  breakup=46/50
+
+📄 user_10039083_agent_1867883974_count_107.jsonl  cold=50/50  tension=50/50  breakup=46/50
+
+📄 user_10042702_agent_1867692830_count_575.jsonl  cold=50/50  tension=50/50  breakup=46/50
+
+📄 user_10042693_agent_1867577929_count_145.jsonl  cold=50/50  tension=50/50  breakup=46/50
+
+📄 user_10029556_agent_1867734211_count_463.jsonl  cold=50/50  tension=50/50  breakup=46/50
+
+📄 user_10018498_agent_1867865000_count_542.jsonl  cold=50/50  tension=50/50  breakup=46/50
+  ✅ BREAKUP #047  chosen='"行啊，签就签呗，不过建议你先放抽屉里冷静三天，说不定到时候'
+  ✅ BREAKUP #048  chosen='行啊，那就这样吧。想聊了随时回来，我这儿门还开着。'
+  ↳ 本文件采样: cold=0  tension=0  breakup=2
+
+📄 user_10027282_agent_1867883974_count_222.jsonl  cold=50/50  tension=50/50  breakup=48/50
+
+📄 user_10037316_agent_1867577929_count_200.jsonl  cold=50/50  tension=50/50  breakup=48/50
+
+📄 user_10047029_agent_1867888530_count_195.jsonl  cold=50/50  tension=50/50  breakup=48/50
+
+📄 user_10040853_agent_1867674257_count_838.jsonl  cold=50/50  tension=50/50  breakup=48/50
+  ✅ BREAKUP #049  chosen='"当然在啊，不过分手这种事还是得看你想不想清楚，我可不负责帮'
+  ↳ 本文件采样: cold=0  tension=0  breakup=1
+
+📄 user_10028049_agent_1867642605_count_1143.jsonl  cold=50/50  tension=50/50  breakup=49/50
+  ✅ BREAKUP #050  chosen='行啊，想清楚了就行。我这儿随时欢迎，但别指望我求着你回来。'
+  ↳ 本文件采样: cold=0  tension=0  breakup=1
+
+====================================================================
+📊 完成: 150 条
+   冷淡激活:  50
+   情感张力:  50
+   分手拉扯:  50
+   输出: datasets0305_train/dpo/tension.jsonl
+====================================================================

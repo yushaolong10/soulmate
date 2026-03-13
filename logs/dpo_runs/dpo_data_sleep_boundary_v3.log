@@ -1,0 +1,8 @@
+====================================================================
+🌙 dpo_data_sleep_boundary_v3.py — 拒绝催睡后的继续聊天
+====================================================================
+输出: /Users/yushaolong/Desktop/work/ai_program/soulmate/datasets0305_train/dpo/sleep_boundary_v3.jsonl
+样本数: 180
+  - sleep_boundary_keep_topic_after_refusal: 60
+  - sleep_boundary_not_sleepy_continue_chat: 80
+  - sleep_boundary_respect_user_no_sleep_push: 40

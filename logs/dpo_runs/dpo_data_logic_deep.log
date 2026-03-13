@@ -1,0 +1,16 @@
+========================================================================
+🧠 dpo_data_logic_deep.py — DPO 3.4 深层逻辑策略修复
+========================================================================
+输出: /Users/yushaolong/Desktop/work/ai_program/soulmate/datasets0305_train/dpo/logic_deep.jsonl
+配额: 事实问答=40  人设不过展开=40  周五状态一致=40  情绪优先=40  不空泛贴合=40
+========================================================================
+
+========================================================================
+📊 完成: 200 条
+   fact_answer_no_forced_counter_question: 40
+   persona_not_over_expand: 40
+   weekday_state_consistency: 40
+   emotion_anchor_before_topic_expand: 40
+   affinity_not_claimed_without_grounding: 40
+   输出: /Users/yushaolong/Desktop/work/ai_program/soulmate/datasets0305_train/dpo/logic_deep.jsonl
+========================================================================

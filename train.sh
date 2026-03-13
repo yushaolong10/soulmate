@@ -18,4 +18,4 @@ CUDA_VISIBLE_DEVICES=0,1 torchrun --nproc_per_node=2 sft_gpu_mc.py
 #CUDA_VISIBLE_DEVICES=0 python dpo_gpu_8bit.py
 
 # 多卡 - 方式2: 指定 GPU
-#CUDA_VISIBLE_DEVICES=0,1 torchrun --nproc_per_node=2 dpo_gpu.py
+#CUDA_VISIBLE_DEVICES=0,1 torchrun --nproc_per_node=2 dpo_gpu_mc.py

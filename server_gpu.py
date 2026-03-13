@@ -7,7 +7,7 @@
 #   - BFloat16/Float16 混合精度
 #   - KV Cache 优化
 #   - 真正的流式生成（逐 token 输出）
-#   - 支持 SFT LoRA + DPO LoRA 双层 adapter
+#   - 支持 SFT LoRA，以及按训练语义加载的 DPO LoRA
 #
 # 运行：
 #   # 仅 SFT LoRA
@@ -46,7 +46,9 @@ BASE_MODEL = os.environ.get("BASE_MODEL", "Qwen/Qwen3-14B")
 
 # LoRA adapter 配置
 # SFT_LORA_DIR: SFT 微调后的 LoRA adapter (必需)
-# DPO_LORA_DIR: DPO 训练后的 LoRA adapter (可选，在 SFT 基础上加载)
+# DPO_LORA_DIR: DPO 训练后的 LoRA adapter
+#   注意：当前 DPO 训练脚本是先 merge SFT，再在 Merged(Base+SFT) 上训练 DPO adapter，
+#   因此推理时也必须先 merge SFT，再加载 DPO adapter，不能把二者当作并列 adapter 叠加。
 SFT_LORA_DIR = os.environ.get("SFT_LORA_DIR", "./qwen_lora_adapter_0211_1w")
 DPO_LORA_DIR = os.environ.get("DPO_LORA_DIR", "")  # 为空则不加载 DPO adapter
 
@@ -139,24 +141,38 @@ def _load_model():
 
     base = AutoModelForCausalLM.from_pretrained(BASE_MODEL, **load_kwargs)
 
-    # 加载 SFT LoRA adapter（如果存在）
+    if DPO_LORA_DIR and not (SFT_LORA_DIR and os.path.exists(SFT_LORA_DIR)):
+        raise FileNotFoundError(
+            "DPO_LORA_DIR is set, but SFT_LORA_DIR is missing or not found. "
+            "Current DPO adapters were trained on top of Merged(Base+SFT), "
+            "so inference must load and merge the SFT adapter first."
+        )
+
+    merged_model = base
+
+    # 先加载 SFT，再 merge 到基座，和 dpo_gpu_mc.py 的训练语义保持一致
     if SFT_LORA_DIR and os.path.exists(SFT_LORA_DIR):
         print(f"🔹 Loading SFT LoRA adapter from {SFT_LORA_DIR}...")
-        model = PeftModel.from_pretrained(base, SFT_LORA_DIR)
-        print(f"   ✅ SFT LoRA loaded")
-
-        # 加载 DPO LoRA adapter（如果存在，在 SFT 基础上叠加）
-        if DPO_LORA_DIR and os.path.exists(DPO_LORA_DIR):
-            print(f"🔹 Loading DPO LoRA adapter from {DPO_LORA_DIR}...")
-            # 加载 DPO adapter 并设置为活动 adapter
-            model.load_adapter(DPO_LORA_DIR, adapter_name="dpo")
-            model.set_adapter("dpo")
-            print(f"   ✅ DPO LoRA loaded (active adapter: dpo)")
-        elif DPO_LORA_DIR:
-            print(f"⚠️  DPO LoRA directory not found: {DPO_LORA_DIR}, using SFT only")
+        sft_model = PeftModel.from_pretrained(base, SFT_LORA_DIR)
+        print("   ✅ SFT LoRA loaded")
+        print("🔹 Merging SFT LoRA into base model...")
+        merged_model = sft_model.merge_and_unload()
+        print("   ✅ SFT LoRA merged into base model")
     else:
         print(f"⚠️  SFT LoRA directory not found: {SFT_LORA_DIR}, using base model")
-        model = base
+
+    # DPO adapter 训练于 Merged(Base+SFT) 之上，因此必须挂在 merged_model 上
+    if DPO_LORA_DIR and os.path.exists(DPO_LORA_DIR):
+        print(f"🔹 Loading DPO LoRA adapter from {DPO_LORA_DIR}...")
+        model = PeftModel.from_pretrained(merged_model, DPO_LORA_DIR)
+        print("   ✅ DPO LoRA loaded on top of Merged(Base+SFT)")
+    elif DPO_LORA_DIR:
+        print(
+            f"⚠️  DPO LoRA directory not found: {DPO_LORA_DIR}, using merged SFT/base only"
+        )
+        model = merged_model
+    else:
+        model = merged_model
 
     model.eval()
 
