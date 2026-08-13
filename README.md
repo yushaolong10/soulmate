@@ -1,3 +1,5 @@
+
+
 # Soulmate — 虚拟男友对话模型
 
 > 基于 **Qwen3-14B** 的虚拟男友对话模型，采用 **SFT → DPO** 两阶段训练范式，打造具有真实感、拉扯感、情绪共情能力的沉浸式对话体验。
@@ -91,7 +93,7 @@
 
 ⑦ 模型评估               ⑧ 推理部署
    eval_chat.py       →    server_gpu.py
-   eval_report.py           http://127.0.0.1:8028/v1
+   eval_report.py           http://127.0.0.1:8026/v1
 ```
 
 ---
@@ -499,7 +501,7 @@ python eval_chat.py --output eval_chat_dialogs.json
 # 自定义参数
 python eval_chat.py \
   --turns 30 \
-  --assistant-api http://localhost:8028/v1 \
+  --assistant-api http://localhost:8026/v1 \
   --assistant-model soulmate
 ```
 
@@ -570,7 +572,7 @@ CUDA_VISIBLE_DEVICES=0,1 python server_gpu.py
 CUDA_VISIBLE_DEVICES=0 python server_gpu_8bit.py
 ```
 
-服务启动后提供 **OpenAI 兼容 API**：`http://127.0.0.1:8028/v1`
+服务启动后提供 **OpenAI 兼容 API**：`http://127.0.0.1:8026/v1`
 
 **加载 SFT + DPO 双 Adapter：**
 
